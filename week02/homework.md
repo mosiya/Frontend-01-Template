@@ -126,6 +126,8 @@ function UTF8Encoding(str) {
 + " DoubleStringCharactersopt " 
 + ' SingleStringCharactersopt '
 
+*分析该产生式，有双引号和单引号两种情况，除了单双引号以外，其结构是一致的，故只要写出来其中一种，另一种也就迎刃而解了*
+
 #### DoubleStringCharacters ::
 + DoubleStringCharacter DoubleStringCharacters<sub>opt</sub> 
 
@@ -136,8 +138,62 @@ function UTF8Encoding(str) {
 + SourceCharacter but not one of " or \ or LineTerminator
   + \<LS>
   + \<PS>
-  + \ EscapeSequence
+  + \\ EscapeSequence
   + LineContinuation
+
+#### SingleStringCharacter ::
+ + SourceCharacter but not one of ' or \ or LineTerminator 
+ + \<LS>
+ + \<PS>
+ + \\ EscapeSequence
+ + LineContinuation
+
+ #### SourceCharacter ::
+ + any Unicode code point
+
+#### LineContinuation ::
+ + \\ LineTerminatorSequence
+
+#### LineTerminatorSequence :: 
+ + \<LF>
+ + \<CR>[lookahead ≠ \<LF>] \<LS>
+ + \<PS>
+ + \<CR>\<LF>
+
+#### EscapeSequence :: 
+ + CharacterEscapeSequence
+ + 0 [lookahead ∉ DecimalDigit] 
+ + HexEscapeSequence 
+ + UnicodeEscapeSequence
+
+#### CharacterEscapeSequence :: 
+ + SingleEscapeCharacter
+ + NonEscapeCharacter
+
+#### SingleEscapeCharacter :: one of
+ + \\'  \\"  \\\\  \b  \f  \n  \r  \t  \v
+
+#### NonEscapeCharacter ::
+ + SourceCharacter but not one of EscapeCharacter or LineTerminator
+
+#### EscapeCharacter :: 
+ + SingleEscapeCharacter
+ + DecimalDigit
+ + \x 
+ + \u
+
+#### HexEscapeSequence ::
+ + \x HexDigit HexDigit
+
+#### UnicodeEscapeSequence :: 
+ + \uHex4Digits
+ + \u\{ CodePoint \} 
+ 
+#### Hex4Digits ::
+ + HexDigit HexDigit HexDigit HexDigit
+
+
+
 
 ```js
 /"(?:[^\n\\\r\u2028\u2029]|\\(?:['"\\bfnrtv\n\r\u2028\u2029]|\r\n)|\\x[0-9a-fA-F]{2}|\\u[0-9a-fA-F]{4}|\\[^0-9ux'"\\bfnrtv\n\\\r\u2028\2029])*"/
