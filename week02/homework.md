@@ -123,8 +123,8 @@ function UTF8Encoding(str) {
 ## 3. 写一个正则表达式，匹配所有的字符串直接量，单引号和双引号
 
 #### StringLiteral ::
-+ " DoubleStringCharactersopt " 
-+ ' SingleStringCharactersopt '
++ " DoubleStringCharacters<sub>opt</sub>  " 
++ ' SingleStringCharacters<sub>opt</sub>  '
 
 *分析该产生式，有双引号和单引号两种情况，除了单双引号以外，其结构是一致的，故只要写出来其中一种，另一种也就迎刃而解了*
 
@@ -156,13 +156,14 @@ function UTF8Encoding(str) {
 
 #### LineTerminatorSequence :: 
  + \<LF>
- + \<CR>[lookahead ≠ \<LF>] \<LS>
+ + \<CR>\[lookahead ≠ \<LF>] 
+ + \<LS>
  + \<PS>
  + \<CR>\<LF>
 
 #### EscapeSequence :: 
  + CharacterEscapeSequence
- + 0 [lookahead ∉ DecimalDigit] 
+ + 0 \[lookahead ∉ DecimalDigit] 
  + HexEscapeSequence 
  + UnicodeEscapeSequence
 
@@ -171,7 +172,7 @@ function UTF8Encoding(str) {
  + NonEscapeCharacter
 
 #### SingleEscapeCharacter :: one of
- + \\'  \\"  \\\\  \b  \f  \n  \r  \t  \v
+ + '  "  \  b  f  n  r  t  v
 
 #### NonEscapeCharacter ::
  + SourceCharacter but not one of EscapeCharacter or LineTerminator
@@ -179,15 +180,15 @@ function UTF8Encoding(str) {
 #### EscapeCharacter :: 
  + SingleEscapeCharacter
  + DecimalDigit
- + \x 
- + \u
+ + x 
+ + u
 
 #### HexEscapeSequence ::
- + \x HexDigit HexDigit
+ + x HexDigit HexDigit
 
 #### UnicodeEscapeSequence :: 
- + \uHex4Digits
- + \u\{ CodePoint \} 
+ + uHex4Digits
+ + u{ CodePoint } 
  
 #### Hex4Digits ::
  + HexDigit HexDigit HexDigit HexDigit
