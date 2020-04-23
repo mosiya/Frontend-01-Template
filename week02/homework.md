@@ -53,7 +53,8 @@
 ```javascript
 /^(?:(?:0|[1-9]\d*)\.\d*|\.\d+|(?:0|[1-9]\d*))(?:[eE][-+]?\d+)?$/
 ```
-
+测试后的分析结果为：
+![](https://github.com/mosiya/Frontend-01-Template/blob/master/week02/DecimalLiteral.png)
 
 
 #### BinaryIntegerLiteral ::
@@ -87,11 +88,12 @@
 ```
 
 
-### 匹配所有Number直接量的正则
+### 故匹配所有Number直接量的正则为
 ```JavaScript
 /^(?:(?:0|[1-9]\d*)\.\d*|\.\d+|(?:0|[1-9]\d*))(?:[eE][-+]?\d+)?$|^0[bB][01]+$|^0[oO][0-7]+$|^0[xX][0-9a-fA-F]+$/
 ```
-
+最终的分析结果如下，符合ECMAScript262标准的定义：
+![](https://github.com/mosiya/Frontend-01-Template/blob/master/week02/NumericLiteral.png)
 
 
 ## 2. 写一个 UTF-8 Encoding 的函数
