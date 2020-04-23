@@ -1,7 +1,7 @@
 
 
 # Week02 课后作业
-## + 写一个正则表达式 匹配所有 Number 直接量
+## 1. 写一个正则表达式 匹配所有 Number 直接量
 
 #### Syntax
 + NumericLiteral ::
@@ -15,11 +15,45 @@
   + . DecimalDigits ExponentPart<sub>opt</sub>
   + DecimalIntegerLiteral ExponentPart<sub>opt</sub>
 
-#### 正则表达式为
+根据以下的产生式，可写出这三种非终结符的正则如下：(括号里加?:是为了去除捕获的副作用)
+```js
+/(?:0|[1-9]\d*)\.\d*(?:[eE][-+]?\d+)?/
+/\.\d+(?:[eE][-+]?\d+)?/
+/(?:0|[1-9]\d*)(?:[eE][-+]?\d+)?/
+```
+
+#### DecimalIntegerLiteral :: 
+ + 0
+ + NonZeroDigit DecimalDigits<sub>opt</sub>
+
+#### DecimalDigits :: 
++ DecimalDigit
++ DecimalDigits DecimalDigit 
+
+#### DecimalDigit :: one of
+ + 0 1 2 3 4 5 6 7 8 9
+
+#### NonZeroDigit :: one of 
+ + 1 2 3 4 5 6 7 8 9
+
+#### ExponentPart ::
+ + ExponentIndicator SignedInteger
+
+#### ExponentIndicator :: one of 
+ + e E
+
+#### SignedInteger :: 
+ + DecimalDigits
+ + \+ DecimalDigits
+ + \- DecimalDigits
+
+
+#### 合并后DecimalLiteral的正则表达式为
 
 ```javascript
-/^(0|[1-9]\d*)\.\d*([eE][+-]?\d)?$/
+/^(?:(?:0|[1-9]\d*)\.\d*|\.\d+|(?:0|[1-9]\d*))(?:[eE][-+]?\d+)?$/
 ```
+
 
 
 #### BinaryIntegerLiteral ::
@@ -52,14 +86,15 @@
 /^0[xX][0-9a-fA-F]+$/
 ```
 
+
 ### 匹配所有Number直接量的正则
 ```JavaScript
-/^(0|[1-9]\d*)\.\d*([eE][+-]?\d)?|0[bB][01]+|0[oO][0-7]+|0[xX][0-9a-fA-F]+$/
+/^(?:(?:0|[1-9]\d*)\.\d*|\.\d+|(?:0|[1-9]\d*))(?:[eE][-+]?\d+)?$|^0[bB][01]+$|^0[oO][0-7]+$|^0[xX][0-9a-fA-F]+$/
 ```
 
 
 
-## + 写一个 UTF-8 Encoding 的函数
+## 2. 写一个 UTF-8 Encoding 的函数
 
 ```js
 function UTF8Encoding(str) {
@@ -83,7 +118,7 @@ function UTF8Encoding(str) {
 
 
 
-## + 写一个正则表达式，匹配所有的字符串直接量，单引号和双引号
+## 3. 写一个正则表达式，匹配所有的字符串直接量，单引号和双引号
 
 #### StringLiteral ::
 + " DoubleStringCharactersopt " 
