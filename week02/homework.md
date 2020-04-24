@@ -215,14 +215,14 @@ LineTerminator 的代码为
 结合以上两条产生式， EscapeSequence 的伪代码为
 ```js
 /SingleEscapeCharacter|NonEscapeCharacter/
-/0/
+/0(?!\d)/
 /x[0-9a-fA-F]{2}/
 /u(?:[0-9a-fA-F]{4}|\{(?:10|[0-9a-fA-F])[0-9a-fA-F]{0,4}\})/
 ```
 
 结合以后得 EscapeSequence 的伪代码为(还需要 SingleEscapeCharacter 和 NonEscapeCharacter 的代码)
 ```js
-/SingleEscapeCharacter|NonEscapeCharacter|0|x[0-9a-fA-F]{2}|u(?:[0-9a-fA-F]{4}|\{(?:10|[0-9a-fA-F])[0-9a-fA-F]{0,4}\})/
+/SingleEscapeCharacter|NonEscapeCharacter|0(?!\d)|x[0-9a-fA-F]{2}|u(?:[0-9a-fA-F]{4}|\{(?:10|[0-9a-fA-F])[0-9a-fA-F]{0,4}\})/
 ```
 
 
@@ -240,7 +240,7 @@ SingleEscapeCharacter 的代码为
 
 此时可得 EscapeSequence 的伪代码为(还需要 NonEscapeCharacter 的代码)
 ```js
-/['"\\bfnrtv]|NonEscapeCharacter|0|x[0-9a-fA-F]{2}|u(?:[0-9a-fA-F]{4}|\{(?:10|[0-9a-fA-F])[0-9a-fA-F]{0,4}\})/
+/['"\\bfnrtv]|NonEscapeCharacter|0(?!\d)|x[0-9a-fA-F]{2}|u(?:[0-9a-fA-F]{4}|\{(?:10|[0-9a-fA-F])[0-9a-fA-F]{0,4}\})/
 ```
 
 
@@ -269,11 +269,11 @@ EscapeCharacter 的代码为
 ```
 此时可得 EscapeSequence 的正则为
 ```js
-/['"\\bfnrtv]|[^'"\\bfnrtv0-9xu\n\r\u2028\u2029]|0|x[0-9a-fA-F]{2}|u(?:[0-9a-fA-F]{4}|\{(?:10|[0-9a-fA-F])[0-9a-fA-F]{0,4}\})/u
+/['"\\bfnrtv]|[^'"\\bfnrtv0-9xu\n\r\u2028\u2029]|0(?!\d)|x[0-9a-fA-F]{2}|u(?:[0-9a-fA-F]{4}|\{(?:10|[0-9a-fA-F])[0-9a-fA-F]{0,4}\})/u
 ```
 整理后得
 ```js
-/[^1-9xu\n\r\u2028\u2029]|x[0-9a-fA-F]{2}|u(?:[0-9a-fA-F]{4}|\{(?:10|[0-9a-fA-F])[0-9a-fA-F]{0,4}\})/u
+/[^0-9xu\n\r\u2028\u2029]|0(?!\d)|x[0-9a-fA-F]{2}|u(?:[0-9a-fA-F]{4}|\{(?:10|[0-9a-fA-F])[0-9a-fA-F]{0,4}\})/u
 ```
 
 #### HexEscapeSequence ::
@@ -305,25 +305,25 @@ EscapeCharacter 的代码为
 得
 
 ```js
-/[^"\\\n\r]|\\[^0-9xu\n\r\u2028\u2029]|\\x[0-9a-fA-F]{2}|\\u(?:[0-9a-fA-F]{4}|\{(?:10|[0-9a-fA-F])[0-9a-fA-F]{0,4}\})|\\[\n\r\u2028\u2029]/u
+/[^"\\\n\r]|\\[^0-9xu\n\r\u2028\u2029]|\\0(?!\d)|\\x[0-9a-fA-F]{2}|\\u(?:[0-9a-fA-F]{4}|\{(?:10|[0-9a-fA-F])[0-9a-fA-F]{0,4}\})|\\[\n\r\u2028\u2029]/u
 ```
 
 故可得 DoubleStringCharacters 的正则为：
 
 ```js
-/"(?:[^"\\\n\r]|\\[^1-9xu\n\r\u2028\u2029]|\\x[0-9a-fA-F]{2}|\\u(?:[0-9a-fA-F]{4}|\{(?:10|[0-9a-fA-F])[0-9a-fA-F]{0,4}\})|\\[\n\r\u2028\u2029])*"/u
+/"(?:[^"\\\n\r]|\\[^0-9xu\n\r\u2028\u2029]|\\0(?!\d)|\\x[0-9a-fA-F]{2}|\\u(?:[0-9a-fA-F]{4}|\{(?:10|[0-9a-fA-F])[0-9a-fA-F]{0,4}\})|\\[\n\r\u2028\u2029])*"/u
 ```
 
 整理化简得 DoubleStringCharacters 的正则为：
 
 ```js
-/"(?:[^"\\\n\r]|\\[^1-9xu]|\\x[\da-fA-F]{2}|\\u(?:[\da-fA-F]{4}|\{(?:10|[\da-fA-F])[\da-fA-F]{0,4}\}))*"/u
+/"(?:[^"\\\n\r]|\\[^1-9xu]|\\0(?!\d)|\\x[\da-fA-F]{2}|\\u(?:[\da-fA-F]{4}|\{(?:10|0?[\da-fA-F])[\da-fA-F]{0,4}\}))*"/u
 ```
 
 同理可得 SingleStringCharacters 的正则为：
 
 ```js
-/'(?:[^'\\\n\r]|\\[^1-9xu]|\\x[\da-fA-F]{2}|\\u(?:[\da-fA-F]{4}|\{(?:10|[\da-fA-F])[\da-fA-F]{0,4}\}))*'/u
+/'(?:[^'\\\n\r]|\\[^1-9xu]|\\0(?!\d)|\\x[\da-fA-F]{2}|\\u(?:[\da-fA-F]{4}|\{(?:10|0?[\da-fA-F])[\da-fA-F]{0,4}\}))*'/u
 ```
 
 最终的分析结果分别如下：
