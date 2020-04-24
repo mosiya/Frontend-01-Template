@@ -327,8 +327,8 @@ EscapeCharacter 的代码为
 ```
 
 最终的分析结果分别如下：
-![](https://github.com/mosiya/Frontend-01-Template/blob/master/week02/NumericLiteral.png)
-
+![](https://github.com/mosiya/Frontend-01-Template/blob/master/week02/DoubleStringCharacters.png)
+![](https://github.com/mosiya/Frontend-01-Template/blob/master/week02/SingleStringCharacters.png)
 
 老师的答案为：
 ```js
