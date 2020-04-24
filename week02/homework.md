@@ -314,11 +314,20 @@ EscapeCharacter 的代码为
 /"(?:[^"\\\n\r]|\\[^1-9xu\n\r\u2028\u2029]|\\x[0-9a-fA-F]{2}|\\u(?:[0-9a-fA-F]{4}|\{(?:10|[0-9a-fA-F])[0-9a-fA-F]{0,4}\})|\\[\n\r\u2028\u2029])*"/u
 ```
 
-同理可得 SingleStringCharacter 的正则为：
+整理化简得 DoubleStringCharacters 的正则为：
 
 ```js
-/'(?:[^"\\\n\r]|\\[^1-9xu\n\r\u2028\u2029]|\\x[0-9a-fA-F]{2}|\\u(?:[0-9a-fA-F]{4}|\{(?:10|[0-9a-fA-F])[0-9a-fA-F]{0,4}\})|\\[\n\r\u2028\u2029])*'/u
+/"(?:[^"\\\n\r]|\\[^1-9xu]|\\x[0-9a-fA-F]{2}|\\u(?:[0-9a-fA-F]{4}|\{(?:10|[0-9a-fA-F])[0-9a-fA-F]{0,4}\}))*"/u
 ```
+
+同理可得 SingleStringCharacters 的正则为：
+
+```js
+/'(?:[^'\\\n\r]|\\[^1-9xu]|\\x[0-9a-fA-F]{2}|\\u(?:[0-9a-fA-F]{4}|\{(?:10|[0-9a-fA-F])[0-9a-fA-F]{0,4}\}))*'/u
+```
+
+最终的分析结果分别如下：
+![](https://github.com/mosiya/Frontend-01-Template/blob/master/week02/NumericLiteral.png)
 
 
 老师的答案为：
