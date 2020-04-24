@@ -100,44 +100,47 @@
 
 ```js
 function UTF8Encoding(str) {
-  let length = str.codePointAt().toString(2).length
+  let codePoint = str.codePointAt()
+  let binary = codePoint.toString(2)
+  let length = binary.length
   
   if(length <= 7) {
-    return [str.codePointAt().toString(16)]
+    return [codePoint.toString(16)]
   } else if(length <= 11) {
-    let x = str.codePointAt().toString(2)
-    let one = x.substr(-6, 6)
-    let two = x.substr(0, length - 6)
-    one = (btox(one) + 2 ** 7).toString(16)
-    two = (btox(two) + 2 ** 7 + 2 ** 6).toString(16)
+    let one = binary.substr(-6, 6)
+    let two = binary.substr(0, length - 6)
+    one = (biToDe(one) + 2 ** 7).toString(16)
+    two = (biToDe(two) + 2 ** 7 + 2 ** 6).toString(16)
     return [ two, one ]
   } else if(length <= 16) {
-    let x = str.codePointAt().toString(2)
-    let one = x.substr(-6, 6)
-    let two = x.substr(-2 * 6, 6)
-    let three = x.substr(0, length - 2*6)
-    one = (btox(one) + 2 ** 7).toString(16)
-    two = (btox(two) + 2 ** 7).toString(16)
-    three = (btox(three) + 2 ** 7 + 2 ** 6 + 2 ** 5).toString(16)
+    let one = binary.substr(-6, 6)
+    let two = binary.substr(-2 * 6, 6)
+    let three = binary.substr(0, length - 2 * 6)
+    one = (biToDe(one) + 2 ** 7).toString(16)
+    two = (biToDe(two) + 2 ** 7).toString(16)
+    three = (biToDe(three) + 2 ** 7 + 2 ** 6 + 2 ** 5).toString(16)
     return [three, two, one]
   } else if(length <= 21) {
-    let x = str.codePointAt().toString(2)
-    let one = x.substr(-6, 6)
-    let two = x.substr(-2 * 6, 6)
-    let three = x.substr(-3 * 6, 6)
-    let four = x.substr(0, length - 3 * 6)
-    one = (btox(one) + 2 ** 7).toString(16)
-    two = (btox(two) + 2 ** 7).toString(16)
-    three = (btox(three) + 2 ** 7).toString(16)
-    four = (btox(four) + 2 ** 7 + 2 ** 6 + 2 ** 5 + 2 ** 4).toString(16)
+    let one = binary.substr(-6, 6)
+    let two = binary.substr(-2 * 6, 6)
+    let three = binary.substr(-3 * 6, 6)
+    let four = binary.substr(0, length - 3 * 6)
+    one = (biToDe(one) + 2 ** 7).toString(16)
+    two = (biToDe(two) + 2 ** 7).toString(16)
+    three = (biToDe(three) + 2 ** 7).toString(16)
+    four = (biToDe(four) + 2 ** 7 + 2 ** 6 + 2 ** 5 + 2 ** 4).toString(16)
     return [four, three, two, one]
   }
 }
-function btox(bi) {
+function biToDe(bi) {
   return bi ? Number('0b' + bi) : 0
 }
 
 ```
+使用RFC3629的例子验证如图
+![](https://github.com/mosiya/Frontend-01-Template/blob/master/week02/UTF8Encoding.png)
+![](https://github.com/mosiya/Frontend-01-Template/blob/master/week02/RFC3629.png)
+
 
 
 ## 3. 写一个正则表达式，匹配所有的字符串直接量，单引号和双引号
