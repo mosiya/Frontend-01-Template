@@ -97,43 +97,54 @@
 
 
 ## 2. 写一个 UTF-8 Encoding 的函数
+思路是：先获取字符的Unicode码点的二进制字符长度，根据长度进行转换成UTF-8编码。其中：
+
+当长度小于8时，为1个字节，按原编码的十六进制形式输出；
+
+当长度大于等于8时，如何判断编码为几个字节？
+
+按UTF-8的编码规则，大于1个字节的编码方式可提供的最大二进制位数可计算为（设字节长度为n）:
+
+__8n - n - 1 - 2( n - 1) = 5n + 1__ 
+
+即当要编码的字符的二进制字符长度为len时，len <= 5n + 1，或者(len - 1) / 5 <= n
+
+故字节长度的计算方式为Math.ceil((len - 1) / 5)
+
+| Unicode符号范围(十六进制) | UTF-8编码方式（二进制）| 可提供的最大二进制位数 | 
+|:-|:-|:-:|
+| 0000 0000-0000 007F | 0xxxxxxx | 7 |
+| 0000 0080-0000 07FF | 110xxxxx 10xxxxxx | 11 |
+| 0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx | 16 |
+| 0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx | 21 |
+
+接下来就是往二进制里插入对应的10等操作，最后转换成十六进制输出
 
 ```js
-function UTF8Encoding(str) {
-  let codePoint = str.codePointAt()
+function UTF8Encoding(char) {
+  let codePoint = char.codePointAt()
   let binary = codePoint.toString(2)
   let length = binary.length
-  
   if(length <= 7) {
-    return [codePoint.toString(16)]
-  } else if(length <= 11) {
-    let one = binary.substr(-6, 6)
-    let two = binary.substr(0, length - 6)
-    one = (biToDe(one) + 2 ** 7).toString(16)
-    two = (biToDe(two) + 2 ** 7 + 2 ** 6).toString(16)
-    return [ two, one ]
-  } else if(length <= 16) {
-    let one = binary.substr(-6, 6)
-    let two = binary.substr(-2 * 6, 6)
-    let three = binary.substr(0, length - 2 * 6)
-    one = (biToDe(one) + 2 ** 7).toString(16)
-    two = (biToDe(two) + 2 ** 7).toString(16)
-    three = (biToDe(three) + 2 ** 7 + 2 ** 6 + 2 ** 5).toString(16)
-    return [three, two, one]
-  } else if(length <= 21) {
-    let one = binary.substr(-6, 6)
-    let two = binary.substr(-2 * 6, 6)
-    let three = binary.substr(-3 * 6, 6)
-    let four = binary.substr(0, length - 3 * 6)
-    one = (biToDe(one) + 2 ** 7).toString(16)
-    two = (biToDe(two) + 2 ** 7).toString(16)
-    three = (biToDe(three) + 2 ** 7).toString(16)
-    four = (biToDe(four) + 2 ** 7 + 2 ** 6 + 2 ** 5 + 2 ** 4).toString(16)
-    return [four, three, two, one]
+    return [codePoint.toString(16).toUpperCase()]
   }
+  let arr = {  // 生成对应需要相加的编码的十进制数
+    2: Number('0b1100000010000000'),
+    3: Number('0b111000001000000010000000'),
+    4: Number('0b11110000100000001000000010000000'), 
+  }
+  let n = Math.ceil((length - 1) / 5)
+  binary = binary.replace(/(?=([10]{6})+$)/g, '00') // 从后向前每六个字符前插入00
+  let res = Number('0b' + binary) + arr[n]
+  return res.toString(16).toUpperCase().split(/(?=(?:\S{2})+$)/g) // 生成对应数组
 }
-function biToDe(bi) {
-  return bi ? Number('0b' + bi) : 0
+
+function StrToUTF8(str) {
+  if(typeof str !== 'string') return 'arguments must be sting type!'
+  if(!str) return ''
+  return Array.from(str).map(item => UTF8Encoding(item)).reduce((pre, cur) => {
+    return [...pre, ...cur]
+  })
 }
 
 ```
