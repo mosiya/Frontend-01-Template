@@ -7,25 +7,65 @@
 #### convertStringToNumber
 
 ```js
-function convertStringToNumber(string, x) {
-    if(arguments.length < 2) x = 10;
-    var chars = string.split('');
-    var number = 0;
-    var i = 0;
-    while(i < chars[i].length && chars[i] != '.') {
+function convertStringToNumber(string, x = 10) {
+    // 数字直接量正则
+    let reg = /^(?:(?:0|[1-9]\d*)\.\d*|\.\d+|(?:0|[1-9]\d*))(?:[eE][-+]?\d+)?$|^0[bB][01]+$|^0[oO][0-7]+$|^0[xX][0-9a-fA-F]+$/;
+    if(reg.test(string) == false)  return NaN;
+
+    let chars = string.split('');
+    let number = 0;
+    let i = 0;
+
+    // 处理二进制、八进制和十六进制
+    if(chars.length > 2 && chars[0] === '0') {
+        if(chars[1] == 'b' || chars[1] == 'B') x = 2
+        if(chars[1] == 'o' || chars[1] == 'O') x = 8
+        if(chars[1] == 'x' || chars[1] == 'X') x = 16
+
+        i = 2
+        while(i < chars.length) {
+            number = number * x;
+            let codeCount = chars[i].codePointAt(0) - '0'.codePointAt(0);
+            if(codeCount >= 10) codeCount = 10 + chars[i].toLowerCase().codePointAt(0) - 'a'.codePointAt(0)
+            number += codeCount;
+            i++;
+        }
+        return number;
+    }
+    
+    // 只处理十进制
+    x = 10
+    while(i < chars.length && chars[i] != '.' && chars[i] != 'e' && chars[i] != 'E') {
         number = number * x;
         number += chars[i].codePointAt(0) - '0'.codePointAt(0);
+        i++;
     }
-    if(chars[i] == '.') {
-        i++
-    }
-    var fraction = 1;
-    while(i < chars[i].length) {
+    if(chars[i] == '.') i++
+
+    let fraction = 1;
+    while(i < chars.length && chars[i] != 'e' && chars[i] != 'E') {
         fraction = fraction / x;
         number += (chars[i].codePointAt(0) - '0'.codePointAt(0)) * fraction;
         i++
     }
-    return number;
+    if(chars[i] == 'e' || chars[i] == 'E') i++
+    if(chars[i] == '+') i++
+
+    let sign = 1
+    if(chars[i] == '-') {
+        i++;
+        sign = -1;
+    }
+
+    
+    let exponent = 0
+    while(i < chars.length) {
+        exponent = exponent * x;
+        exponent += chars[i].codePointAt(0) - '0'.codePointAt(0);
+        i++
+    }
+
+    return number * 10 ** (sign * exponent);
 }
 
 ```
@@ -33,8 +73,7 @@ function convertStringToNumber(string, x) {
 #### convertNumberToString
 
 ```js
-function convertNumberToString(number, x) {
-    if(argunments.length < 2) x = 10;
+function convertNumberToString(number, x = 10) {
     var integer = Math.floor(number);
     var fraction = number - integer;
     vat string = '';
