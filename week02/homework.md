@@ -142,9 +142,7 @@ function UTF8Encoding(char) {
 function StrToUTF8(str) {
   if(typeof str !== 'string') return 'arguments must be sting type!'
   if(!str) return ''
-  return Array.from(str).map(item => UTF8Encoding(item)).reduce((pre, cur) => {
-    return [...pre, ...cur]
-  })
+  return Array.from(str).map(item => UTF8Encoding(item)).reduce((pre, cur) => [...pre, ...cur])
 }
 
 ```
