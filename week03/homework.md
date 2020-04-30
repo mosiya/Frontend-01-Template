@@ -7,9 +7,10 @@
 #### convertStringToNumber
 
 ```js
+// 精度不太行，但理解原理即可
 function convertStringToNumber(string, x = 10) {
     // 数字直接量正则
-    let reg = /^(?:(?:0|[1-9]\d*)\.\d*|\.\d+|(?:0|[1-9]\d*))(?:[eE][-+]?\d+)?$|^0[bB][01]+$|^0[oO][0-7]+$|^0[xX][0-9a-fA-F]+$/;
+    let reg = /^(?:[+-]?)(?:(?:0|[1-9]\d*)\.\d*|\.\d+|(?:0|[1-9]\d*))(?:[eE][-+]?\d+)?$|^0[bB][01]+$|^0[oO][0-7]+$|^0[xX][0-9a-fA-F]+$/;
     if(reg.test(string) == false)  return NaN;
 
     let chars = string.split('');
@@ -35,6 +36,14 @@ function convertStringToNumber(string, x = 10) {
     
     // 只处理十进制
     x = 10
+    let sign = 1
+    if(chars[i] == '-') {
+        i++
+        sign = -1
+    }
+
+    if(chars[i] == '+') i++
+
     while(i < chars.length && chars[i] != '.' && chars[i] != 'e' && chars[i] != 'E') {
         number = number * x;
         number += chars[i].codePointAt(0) - '0'.codePointAt(0);
@@ -51,10 +60,10 @@ function convertStringToNumber(string, x = 10) {
     if(chars[i] == 'e' || chars[i] == 'E') i++
     if(chars[i] == '+') i++
 
-    let sign = 1
+    let exponent_sign = 1
     if(chars[i] == '-') {
         i++;
-        sign = -1;
+        exponent_sign = -1;
     }
 
     
@@ -65,7 +74,7 @@ function convertStringToNumber(string, x = 10) {
         i++
     }
 
-    return number * 10 ** (sign * exponent);
+    return sign * number * 10 ** (exponent_sign * exponent);
 }
 
 ```
@@ -73,15 +82,25 @@ function convertStringToNumber(string, x = 10) {
 #### convertNumberToString
 
 ```js
+// 精度不太行，但理解原理即可
 function convertNumberToString(number, x = 10) {
-    var integer = Math.floor(number);
-    var fraction = number - integer;
-    vat string = '';
+    let integer = Math.floor(number);
+    let fraction = number - integer;
+    let string = '';
     while(integer > 0) {
         string = String(integer % x) + string;
         integer = Math.floor(integer / x);
     }
-    return number;
+
+    let i = 0;
+    let decimal = ''
+    while(fraction > 0 && i < 20) {
+        let j = Math.floor(fraction * x);
+        decimal = decimal + String(j);
+        fraction = fraction * x - j;
+        i++;
+    }
+    return `${string}${decimal ? '.' + decimal : ''}`;
 }
 ```
 
