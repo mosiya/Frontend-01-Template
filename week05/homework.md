@@ -2,6 +2,9 @@
 
 *可视化代码在homework.html，点击[homework.html](https://github.com/mosiya/Frontend-01-Template/tree/master/week05/homework.html)*
 
+*可视化效果如下：*
+![可视化](https://github.com/mosiya/Frontend-01-Template/tree/master/week05/object_tree.png)
+
 ```js
 var set = new Set();
 var objects = [
@@ -181,7 +184,3 @@ while(queue.length) {
 }
 console.log(set) // 441个
 ```
-
-可视化效果：
-
-![可视化](https://github.com/mosiya/Frontend-01-Template/tree/master/week05/object_tree.png)
