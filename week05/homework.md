@@ -2,7 +2,7 @@
 
 *可视化代码在homework.html，点击[homework.html](https://github.com/mosiya/Frontend-01-Template/tree/master/week05/homework.html)*
 
-*可视化效果如下：*
+*可视化效果如下图(可能图会加载不出来，点击[可视化](https://github.com/mosiya/Frontend-01-Template/tree/master/week05/object_tree.png))：*
 ![可视化](https://github.com/mosiya/Frontend-01-Template/tree/master/week05/object_tree.png)
 
 ```js
