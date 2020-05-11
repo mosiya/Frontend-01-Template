@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>realm</title>
+  </head>
+  <body>
+    <div id="mountNode"></div>
+    <!-- 引入 G6 -->
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g6-3.3.1/dist/g6.min.js"></script>
+
+    <script>
+      const minimap = new G6.Minimap({ // 迷你地图配置
+        size: [100, 100],
+        className: 'minimap',
+        type: 'delegate',
+      });
+
+      const graph = new G6.TreeGraph({ // 树图的所有配置
+        container: 'mountNode',
+        width: 1000,
+        height: 800,
+        linkCenter: true,
+        modes: {
+          default: [
+            {
+              type: 'collapse-expand',
+              onChange: function onChange(item, collapsed) {
+                const data = item.get('model').data;
+                data.collapsed = collapsed;
+                return true;
+              },
+            },
+            'drag-canvas',
+            'zoom-canvas',
+          ],
+        },
+        defaultNode: {
+          size: 26,
+          anchorPoints: [
+            [0, 0.5],
+            [1, 0.5],
+          ],
+          style: {
+            fill: '#C6E5FF',
+            stroke: '#5B8FF9',
+          }
+        },
+        defaultEdge: {
+          type: 'cubic-vertical',
+          style: {
+            stroke: '#A3B1BF',
+          },
+        },
+        layout: {
+          type: 'dendrogram',
+          direction: 'LR', // H / V / LR / RL / TB / BT
+          nodeSep: 100,
+          rankSep: 600,
+          radial: true
+        },
+        // fitView: true,
+        plugins: [minimap],
+      });
+
+      graph.node((node) => { // 对于节点的一些配置
+        let label = Array.isArray(node.label) ? node.label.join('.') : node.label
+        // let rotate = 2*Math.PI - Math.atan2(node.x, node.y) * 180 / Math.PI // 想根据当前位置坐标做旋转，失败了
+        // console.log(node.label, rotate)
+        return {
+          label,
+          labelCfg: {
+            position: 'right',
+            offset: 5,
+            style: {
+              // rotate: -rotate,
+              textAlign: 'start',
+            },
+          },
+        };
+      });
+
+      const dataGen = () => {
+        let data = { // 根节点
+          id: ['Global Object'],
+          label: ['Global Object'],
+          children: []
+        };
+
+        var set = new Set();
+        var globalProperties = [
+          "eval",
+          "isFinite",
+          "isNaN",
+          "parseFloat",
+          "parseInt",
+          "decodeURI",
+          "decodeURIComponent",
+          "encodeURI",
+          "encodeURIComponent",
+          "Array",
+          "Date",
+          "RegExp",
+          "Promise",
+          "Proxy",
+          "Map",
+          "WeakMap",
+          "Set",
+          "WeakSet",
+          "Function",
+          "Boolean",
+          "String",
+          "Number",
+          "Symbol",
+          "Object",
+          "Error",
+          "EvalError",
+          "RangeError",
+          "ReferenceError",
+          "SyntaxError",
+          "TypeError",
+          "URIError",
+          "ArrayBuffer",
+          "SharedArrayBuffer",
+          "DataView",
+          "Float32Array",
+          "Float64Array",
+          "Int8Array",
+          "Int16Array",
+          "Int32Array",
+          "Uint8Array",
+          "Uint16Array",
+          "Uint32Array",
+          "Uint8ClampedArray",
+          "Atomics",
+          "JSON",
+          "Math",
+          "Reflect"
+        ];
+
+        var queue = [];
+
+        for(var p of globalProperties) {
+          data.children.push({
+            id: [p],
+            label: [p],
+            children: _tree([p], this[p])
+          })
+        }
+
+        function _tree(path, object) { // 递归执行，把对应属性挂载到对应的对象下的children里
+          if(set.has(object)) return [];
+          set.add(object);
+          let arr = [];
+
+          for(let p of Object.getOwnPropertyNames(object)) {
+            var property = Object.getOwnPropertyDescriptor(object, p);
+            if(property.hasOwnProperty('value') && 
+              (property.value != null && typeof property.value === 'object' || typeof property.value === 'function')) {
+              arr.push({
+                id: path.concat(p),
+                label: path.concat(p),
+                children: _tree(path.concat(p), property.value)
+              })
+            }
+            if(property.get) {
+              arr.push({
+                id: path.concat(p),
+                label: path.concat(p),
+                children: _tree(path.concat(p), property.get)
+              })
+            }
+            if(property.set) {
+              arr.push({
+                id: path.concat(p),
+                label: path.concat(p),
+                children: _tree(path.concat(p), property.set)
+              })
+            }
+          }
+          return arr;
+        }
+        console.log(set) // 结果为441个
+        return data;
+      }
+      let res = dataGen();
+      graph.data(res);
+      graph.render();
+      graph.fitView(); // 有的节点文字会被挡住，暂时还没有解决
+    </script>
+  </body>
+</html>
