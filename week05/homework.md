@@ -1,6 +1,6 @@
 #### 1、写出一个realm里有多少内置对象(两个方案，差不多)
 
-*可视化代码在homework.html*
+*可视化代码在homework.html，点击[homework.html](https://github.com/mosiya/Frontend-01-Template/tree/master/week05/homework.html)*
 
 ```js
 var set = new Set();
