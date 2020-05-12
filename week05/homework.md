@@ -1,8 +1,8 @@
 #### 1、写出一个realm里有多少内置对象(两个方案，差不多)
 
-*可视化代码在homework.html，点击[homework.html](https://github.com/mosiya/Frontend-01-Template/tree/master/week05/homework.html)*
+*可视化代码在homework.html，点击[realm.v1.html.html](https://github.com/mosiya/Frontend-01-Template/tree/master/week05/realm.v1.html.html)、[realm.v2.html.html](https://github.com/mosiya/Frontend-01-Template/tree/master/week05/realm.v2.html.html)*
 
-*可视化效果如下图(可能图会加载不出来，点击[可视化](https://github.com/mosiya/Frontend-01-Template/tree/master/week05/object_tree.png))：*
+*可视化效果如下图(可能图会加载不出来，点击跳转[可视化](https://github.com/mosiya/Frontend-01-Template/tree/master/week05/object_tree.png))：*
 
 ![可视化](https://github.com/mosiya/Frontend-01-Template/tree/master/week05/object_tree.png)
 
@@ -151,6 +151,7 @@ while(queue.length) {
     if(set.has(current.object)) continue;
     set.add(current.object);
 
+    // 这块加上就太多了，就不加了，懂了就好
     // let proto = Object.getPrototypeOf(current.object);
     // if(proto) {
     //     queue.push({

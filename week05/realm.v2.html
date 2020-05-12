@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en" style="width: 100%; height: 100%;">
+  <head>
+    <meta charset="UTF-8" />
+    <title>realm生态树</title>
+  </head>
+  <body style="width: 100%; height: 100%;">
+    <div id="container" style="width: 100%; height: 100%; background-color: rgba(240, 249, 235, 0.4);"></div>
+    <!-- 引入 G6 -->
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g6-3.3.1/dist/g6.min.js"></script>
+    <script>
+      const genData = () => {
+        let data = { // 根节点
+          id: ['Global Object'],
+          children: []
+        };
+
+        var set = new Set();
+        var globalProperties = [
+          "eval",
+          "isFinite",
+          "isNaN",
+          "parseFloat",
+          "parseInt",
+          "decodeURI",
+          "decodeURIComponent",
+          "encodeURI",
+          "encodeURIComponent",
+          "Array",
+          "Date",
+          "RegExp",
+          "Promise",
+          "Proxy",
+          "Map",
+          "WeakMap",
+          "Set",
+          "WeakSet",
+          "Function",
+          "Boolean",
+          "String",
+          "Number",
+          "Symbol",
+          "Object",
+          "Error",
+          "EvalError",
+          "RangeError",
+          "ReferenceError",
+          "SyntaxError",
+          "TypeError",
+          "URIError",
+          "ArrayBuffer",
+          "SharedArrayBuffer",
+          "DataView",
+          "Float32Array",
+          "Float64Array",
+          "Int8Array",
+          "Int16Array",
+          "Int32Array",
+          "Uint8Array",
+          "Uint16Array",
+          "Uint32Array",
+          "Uint8ClampedArray",
+          "Atomics",
+          "JSON",
+          "Math",
+          "Reflect"
+        ];
+
+        var queue = [];
+
+        for(var p of globalProperties) {
+          data.children.push({
+            id: [p],
+            children: _getChildren([p], this[p])
+          })
+        }
+
+        function _getChildren(path, object) { // 递归执行，把对应属性挂载到对应的对象下的children里
+          if(set.has(object)) return [];
+          set.add(object);
+          let arr = [];
+
+          // 这块加上就太多了，就不加了，懂了就好
+          // let proto = Object.getPrototypeOf(object);
+          // if(proto) {
+          //   arr.push({
+          //     id: path.concat('__proto__'),
+          //     children: _getChildren(path.concat('__proto__'), proto)
+          //   })
+          // }
+
+          for(let p of Object.getOwnPropertyNames(object)) {
+            var property = Object.getOwnPropertyDescriptor(object, p);
+            if(property.hasOwnProperty('value') && 
+              (property.value != null && typeof property.value === 'object' || typeof property.value === 'function')) {
+              arr.push({
+                id: path.concat(p).join('.'),
+                children: _getChildren(path.concat(p), property.value)
+              })
+            }
+            if(property.get) {
+              arr.push({
+                id: path.concat(p + '(getter)').join('.'),
+                children: _getChildren(path.concat(p), property.get)
+              })
+            }
+            if(property.set) {
+              arr.push({
+                id: path.concat(p + '(setter)').join('.'),
+                children: _getChildren(path.concat(p), property.set)
+              })
+            }
+          }
+          return arr;
+        }
+        console.log(set) // 结果为441个
+        return data;
+      }
+    </script>
+
+    <script>
+
+      const COLLAPSE_ICON = function COLLAPSE_ICON(x, y, r) {
+        return [
+          ['M', x, y],
+          ['a', r, r, 0, 1, 0, r * 2, 0],
+          ['a', r, r, 0, 1, 0, -r * 2, 0],
+          ['M', x + 2, y],
+          ['L', x + 2 * r - 2, y],
+        ];
+      };
+      const EXPAND_ICON = function EXPAND_ICON(x, y, r) {
+        return [
+          ['M', x, y],
+          ['a', r, r, 0, 1, 0, r * 2, 0],
+          ['a', r, r, 0, 1, 0, -r * 2, 0],
+          ['M', x + 2, y],
+          ['L', x + 2 * r - 2, y],
+          ['M', x + r, y - r + 2],
+          ['L', x + r, y + r - 2],
+        ];
+      };
+      // 自定义节点
+      G6.registerNode(
+        'tree-node',
+        {
+          drawShape: function drawShape(cfg, group) {
+            // 节点的外框
+            const rect = group.addShape('rect', {
+              attrs: {
+                fill: '#409EFF',
+                stroke: '#409EFF',
+                lineWidth: 5,
+                radius: 3,
+              },
+              name: 'rect-shape',
+            });
+            // 节点文字部分
+            const content = cfg.id;
+            const text = group.addShape('text', {
+              attrs: {
+                text: content,
+                x: 0,
+                y: 0,
+                textAlign: 'left',
+                textBaseline: 'middle',
+                fill: '#fff',
+              },
+              name: 'rect-shape',
+            });
+            // 节点的展开收起图标
+            const bbox = text.getBBox();
+            const hasChildren = cfg.children && cfg.children.length > 0;
+            if (hasChildren) {
+              group.addShape('marker', {
+                attrs: {
+                  x: bbox.maxX + 6,
+                  y: bbox.minX + bbox.height / 2 - 6,
+                  r: 6,
+                  symbol: COLLAPSE_ICON,
+                  // symbol: cfg.id[0] === 'Global Object' ? COLLAPSE_ICON : EXPAND_ICON,
+                  stroke: '#fff',
+                  lineWidth: 1,
+                },
+                name: 'collapse-icon',
+              });
+            }
+            rect.attr({
+              x: bbox.minX - 4,
+              y: bbox.minY - 6,
+              width: bbox.width + (hasChildren ? 26 : 8),
+              height: bbox.height + 12,
+            });
+            return rect;
+          },
+        },
+        'single-node',
+      );
+      const width = document.getElementById('container').scrollWidth;
+      const height = document.getElementById('container').scrollHeight || 500;
+      const graph = new G6.TreeGraph({ // 树图的所有配置
+        container: 'container',
+        width,
+        height,
+        modes: {
+          default: [
+            {
+              type: 'collapse-expand',
+              onChange: function onChange(item, collapsed) {
+                const data = item.get('model');
+                const icon = item.get('group').find(element => element.get('name') === 'collapse-icon');
+                if (collapsed) {
+                  icon.attr('symbol', EXPAND_ICON);
+                } else {
+                  icon.attr('symbol', COLLAPSE_ICON);
+                }
+                data.collapsed = collapsed;
+                return true;
+              },
+            },
+            'drag-canvas',
+            'zoom-canvas',
+          ],
+        },
+        defaultNode: {
+          type: 'tree-node',
+        },
+        defaultEdge: {
+          type: 'cubic-horizontal',
+          style: {
+            stroke: '#C6E5FF',
+            lineWidth: 2,
+          },
+        },
+        layout: {
+          type: 'compactBox',
+          direction: 'LR',
+          getHGap() {
+            return 200;
+          },
+        },
+        fitView: true,
+      });
+      
+      let res = genData();
+      // 本来是想只展示根节点和二级节点，想想还是全展开算了
+      // G6.Util.traverseTree(res, function(item) {
+      //   console.log(item)
+      //   if(item.children.length > 0 && item.id[0] !== 'Global Object') {
+      //     item.collapsed = true
+      //   }
+      // });
+      graph.data(res);
+      graph.render();
+    </script>
+  </body>
+</html>

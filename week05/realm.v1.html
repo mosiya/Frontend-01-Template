@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>realm</title>
+    <title>realm辐射树</title>
   </head>
   <body>
     <div id="mountNode"></div>
@@ -10,76 +10,7 @@
     <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g6-3.3.1/dist/g6.min.js"></script>
 
     <script>
-      const minimap = new G6.Minimap({ // 迷你地图配置
-        size: [100, 100],
-        className: 'minimap',
-        type: 'delegate',
-      });
-
-      const graph = new G6.TreeGraph({ // 树图的所有配置
-        container: 'mountNode',
-        width: 1000,
-        height: 800,
-        linkCenter: true,
-        modes: {
-          default: [
-            {
-              type: 'collapse-expand',
-              onChange: function onChange(item, collapsed) {
-                const data = item.get('model').data;
-                data.collapsed = collapsed;
-                return true;
-              },
-            },
-            'drag-canvas',
-            'zoom-canvas',
-          ],
-        },
-        defaultNode: {
-          size: 26,
-          anchorPoints: [
-            [0, 0.5],
-            [1, 0.5],
-          ],
-          style: {
-            fill: '#C6E5FF',
-            stroke: '#5B8FF9',
-          }
-        },
-        defaultEdge: {
-          type: 'cubic-vertical',
-          style: {
-            stroke: '#A3B1BF',
-          },
-        },
-        layout: {
-          type: 'dendrogram',
-          direction: 'LR', // H / V / LR / RL / TB / BT
-          nodeSep: 100,
-          rankSep: 600,
-          radial: true
-        },
-        // fitView: true,
-        plugins: [minimap],
-      });
-
-      graph.node((node) => { // 对于节点的一些配置
-        let label = Array.isArray(node.label) ? node.label.join('.') : node.label
-        // let rotate = 2*Math.PI - Math.atan2(node.x, node.y) * 180 / Math.PI // 想根据当前位置坐标做旋转，失败了
-        // console.log(node.label, rotate)
-        return {
-          label,
-          labelCfg: {
-            position: 'right',
-            offset: 5,
-            style: {
-              // rotate: -rotate,
-              textAlign: 'start',
-            },
-          },
-        };
-      });
-
+      // 数据部分
       const dataGen = () => {
         let data = { // 根节点
           id: ['Global Object'],
@@ -183,6 +114,72 @@
         console.log(set) // 结果为441个
         return data;
       }
+    </script>
+
+    <script>
+      // 树图部分
+      const graph = new G6.TreeGraph({ // 树图的所有配置
+        container: 'mountNode',
+        width: 1000,
+        height: 800,
+        linkCenter: true,
+        modes: {
+          default: [
+            {
+              type: 'collapse-expand',
+              onChange: function onChange(item, collapsed) {
+                const data = item.get('model').data;
+                data.collapsed = collapsed;
+                return true;
+              },
+            },
+            'drag-canvas',
+            'zoom-canvas',
+          ],
+        },
+        defaultNode: {
+          size: 26,
+          anchorPoints: [
+            [0, 0.5],
+            [1, 0.5],
+          ],
+          style: {
+            fill: '#C6E5FF',
+            stroke: '#5B8FF9',
+          }
+        },
+        defaultEdge: {
+          type: 'cubic-vertical',
+          style: {
+            stroke: '#A3B1BF',
+          },
+        },
+        // layout使用的是辐射树
+        layout: {
+          type: 'dendrogram', 
+          direction: 'LR', // H / V / LR / RL / TB / BT
+          nodeSep: 100,
+          rankSep: 600,
+          radial: true
+        },
+      });
+
+      graph.node((node) => { // 对于节点的一些配置
+        let label = Array.isArray(node.label) ? node.label.join('.') : node.label
+        // let rotate = 2*Math.PI - Math.atan2(node.x, node.y) * 180 / Math.PI // 想根据当前位置坐标做旋转，失败了
+        // console.log(node.label, rotate)
+        return {
+          label,
+          labelCfg: {
+            position: 'right',
+            offset: 5,
+            style: {
+              // rotate: -rotate,
+              textAlign: 'start',
+            },
+          },
+        };
+      });
       let res = dataGen();
       graph.data(res);
       graph.render();
