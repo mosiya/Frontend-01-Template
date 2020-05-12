@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"  style="width: 100%; height: 100%;">
   <head>
     <meta charset="UTF-8" />
     <title>realm辐射树</title>
   </head>
-  <body>
-    <div id="mountNode"></div>
+  <body  style="width: 100%; height: 100%;">
+    <div id="container" style="width: 100%; height: 100%; background-color: rgba(240, 249, 235, 0.4);"></div>
     <!-- 引入 G6 -->
     <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g6-3.3.1/dist/g6.min.js"></script>
 
@@ -90,21 +90,21 @@
               (property.value != null && typeof property.value === 'object' || typeof property.value === 'function')) {
               arr.push({
                 id: path.concat(p),
-                label: path.concat(p),
+                label: path.concat(p).join('.'),
                 children: _tree(path.concat(p), property.value)
               })
             }
             if(property.get) {
               arr.push({
                 id: path.concat(p),
-                label: path.concat(p),
+                label: path.concat(p).join('.'),
                 children: _tree(path.concat(p), property.get)
               })
             }
             if(property.set) {
               arr.push({
                 id: path.concat(p),
-                label: path.concat(p),
+                label: path.concat(p).join('.'),
                 children: _tree(path.concat(p), property.set)
               })
             }
@@ -118,17 +118,88 @@
 
     <script>
       // 树图部分
+
+      const COLLAPSE_ICON = function COLLAPSE_ICON(x, y, r) {
+        return [
+          ['M', x, y],
+          ['a', r, r, 0, 1, 0, r * 2, 0],
+          ['a', r, r, 0, 1, 0, -r * 2, 0],
+          ['M', x + 2, y],
+          ['L', x + 2 * r - 2, y],
+        ];
+      };
+      const EXPAND_ICON = function EXPAND_ICON(x, y, r) {
+        return [
+          ['M', x, y],
+          ['a', r, r, 0, 1, 0, r * 2, 0],
+          ['a', r, r, 0, 1, 0, -r * 2, 0],
+          ['M', x + 2, y],
+          ['L', x + 2 * r - 2, y],
+          ['M', x + r, y - r + 2],
+          ['L', x + r, y + r - 2],
+        ];
+      };
+      // 自定义节点
+      G6.registerNode(
+        'tree-node',
+        {
+          drawShape: function drawShape(cfg, group) {
+            // 节点的外框
+            const rect = group.addShape('circle', {
+              attrs: {
+                x: 0, // 居中
+                y: 0,
+                r: 12,
+                fill: '#409EFF',
+                stroke: '#5B8FF9'
+              },
+              name: 'rect-shape',
+            });
+            // 节点的展开收起图标
+            const hasChildren = cfg.children && cfg.children.length > 0;
+            if (hasChildren) {
+              group.addShape('marker', {
+                attrs: {
+                  x: -6,
+                  y: 0,
+                  r: 6,
+                  symbol: cfg.id[0] === 'Global Object' ? COLLAPSE_ICON : EXPAND_ICON,
+                  stroke: '#fff',
+                  lineWidth: 1,
+                },
+                name: 'collapse-icon',
+              });
+            }
+            rect.attr({
+              x: 0,
+              y: 0,
+              width: hasChildren ? 26 : 8,
+              height: 12,
+            });
+            return rect;
+          },
+        },
+        'single-node',
+      );
+      const width = document.getElementById('container').scrollWidth;
+      const height = document.getElementById('container').scrollHeight || 500;
       const graph = new G6.TreeGraph({ // 树图的所有配置
-        container: 'mountNode',
-        width: 1000,
-        height: 800,
+        container: 'container',
+        width,
+        height,
         linkCenter: true,
         modes: {
           default: [
             {
               type: 'collapse-expand',
               onChange: function onChange(item, collapsed) {
-                const data = item.get('model').data;
+                const data = item.get('model');
+                const icon = item.get('group').find(element => element.get('name') === 'collapse-icon');
+                if (collapsed) {
+                  icon.attr('symbol', EXPAND_ICON);
+                } else {
+                  icon.attr('symbol', COLLAPSE_ICON);
+                }
                 data.collapsed = collapsed;
                 return true;
               },
@@ -138,20 +209,25 @@
           ],
         },
         defaultNode: {
+          type: 'tree-node',
           size: 26,
           anchorPoints: [
             [0, 0.5],
             [1, 0.5],
           ],
-          style: {
-            fill: '#C6E5FF',
-            stroke: '#5B8FF9',
+          labelCfg: {
+            position: 'right',
+            offset: 5,
+            style: {
+              textAlign: 'start',
+            },
           }
         },
         defaultEdge: {
           type: 'cubic-vertical',
           style: {
-            stroke: '#A3B1BF',
+            stroke: '#C6E5FF',
+            lineWidth: 2,
           },
         },
         // layout使用的是辐射树
@@ -163,27 +239,16 @@
           radial: true
         },
       });
-
-      graph.node((node) => { // 对于节点的一些配置
-        let label = Array.isArray(node.label) ? node.label.join('.') : node.label
-        // let rotate = 2*Math.PI - Math.atan2(node.x, node.y) * 180 / Math.PI // 想根据当前位置坐标做旋转，失败了
-        // console.log(node.label, rotate)
-        return {
-          label,
-          labelCfg: {
-            position: 'right',
-            offset: 5,
-            style: {
-              // rotate: -rotate,
-              textAlign: 'start',
-            },
-          },
-        };
-      });
       let res = dataGen();
+      G6.Util.traverseTree(res, function(item) {
+        console.log(item)
+        if(item.children.length > 0 && item.id[0] !== 'Global Object') {
+          item.collapsed = true
+        }
+      });
       graph.data(res);
       graph.render();
-      graph.fitView(); // 有的节点文字会被挡住，暂时还没有解决
+      graph.fitView();
     </script>
   </body>
 </html>
