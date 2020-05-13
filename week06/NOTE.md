@@ -1,6 +1,6 @@
 ## 本周总结
 
-### 浏览器工作原理
+## 浏览器工作原理
 
 可以由一道经典的面试题说起：当你在浏览器地址栏里敲下一段URL，到整个网页展示完毕，这个过程中浏览器都发生了什么？
 
@@ -8,7 +8,7 @@
 
 【 URL 】 --(HTTP)--> 【 HTML 】 --(parse)--> 【 DOM 】 --(css computing)--> 【 DOM with CSS 】 --(layout)--> 【 DOM with position 】 --(render)--> 【 Bitmap 】
 
-#### 前置知识(感性认识)
+### 前置知识(感性认识)
 
 + 1 ISO七层网络协议（物数网传会表应）
   + 上三层实际上会合并为一层
@@ -28,3 +28,59 @@
 + 3 HTTP
   + Request
   + Response
+
+### HTTP协议
+
+#### Request
+
+##### Request line
+1.  Method
++ GET
++ POST
++ OPTIONS
++ HEAD
++ DELETE
++ PUT
++ TRACE
++ CONNECT
+
+2. Path
+3. HTTP1.0/HTTP2.0
+
+##### Request headers
+
++ Content-Type
+  + application/x-www-form-urlencoded
+  + mutippart/form-data
+  + text/xml
+  + application/json
+  
++ Content-Length
+
++ other k/v
+
+##### （headers与body之间有一个空行）
+
+##### Request body
+
++ data as the the type of headers.Content-Type
+
+
+#### Response（使用状态机解析）
+
+##### status line
++ HTTP1.0/HTTP2.0
++ Status Code
+  + 1XX
+  + 2XX
+  + 3XX
+  + 4XX
+  + 5XX
++ Status Text
+
+##### Response headers
+##### （headers与body之间有一个空行）
+##### Response body
+
+常用的是Transfer-Encoding是chunked，一个chuncked前面是一个数字，表示接下来数据的字符数。Response body接收一个个chunked，直到接收一个为0的chunked为止
+
