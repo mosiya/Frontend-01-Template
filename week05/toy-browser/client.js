@@ -188,8 +188,9 @@ class ChunkedBodyParser {
         }
       } else {
         // 一个坑：这里的长度其实是十六进制
-        this.length *= 10;
-        this.length += char.charCodeAt(0) - '0'.charCodeAt(0);
+        // 已修正
+        this.length *= 16;
+        this.length += parseInt(char, 16);
       }
     }
 
@@ -201,8 +202,9 @@ class ChunkedBodyParser {
 
     else if(this.current === this.READING_CHUNK) {
       // 一个坑：由于使用的是UTF8的编码方式，所以如果使用中文或者超过一个字节的字符，这里的长度会统计失败
+      // 已修正
       this.content.push(char);
-      this.length--;
+      this.length -= utf8Length(char);
       if(this.length === 0) {
         this.current = this.WAITING_NEW_LINE;
       }
@@ -221,6 +223,12 @@ class ChunkedBodyParser {
     }
   }
 
+}
+
+function utf8Length(char) {
+  let length = char.codePointAt().toString(2).length;
+  if(length <= 7) return 1;
+  return Math.ceil((length - 1 ) / 5); // 推理过程详见week02 homework.md 中的02，有详细的分析
 }
 
 void async function () {
