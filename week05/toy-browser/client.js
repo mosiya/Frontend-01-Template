@@ -204,7 +204,7 @@ class ChunkedBodyParser {
       // 一个坑：由于使用的是UTF8的编码方式，所以如果使用中文或者超过一个字节的字符，这里的长度会统计失败
       // 已修正
       this.content.push(char);
-      this.length -= utf8Length(char);
+      this.length -= getUTF8Length(char);
       if(this.length === 0) {
         this.current = this.WAITING_NEW_LINE;
       }
@@ -225,7 +225,7 @@ class ChunkedBodyParser {
 
 }
 
-function utf8Length(char) {
+function getUTF8Length(char) {
   let length = char.codePointAt().toString(2).length;
   return length <= 7 ? 1 : Math.ceil((length - 1 ) / 5); // 推理过程详见week02 homework.md 中的02，有详细的分析
 }
