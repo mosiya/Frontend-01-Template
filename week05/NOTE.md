@@ -43,7 +43,7 @@ console.log(b1 instanceof Object, b2 instanceof Object); //false true
 
 #### 2、Execution Context
 
-在上一节里，来到函数调用这块，会产生Execution Context，也就是执行上下文，实际上也叫Running Execution Context。每次函数调用，形成的Execution Context，会被推入Execution Context Stack中，也就是执行上下文栈，它的踪迹在ECMAScript标准里随处可寻。。执行栈栈顶的元素就是当前的Execution Context。那么Execution Context包括哪些东西呢？
+在上一节里，来到函数调用这块，会产生Execution Context，也就是执行上下文，实际上也叫Running Execution Context。每次函数调用，形成的Execution Context，会被推入Execution Context Stack中，也就是执行上下文栈，它的踪迹在ECMAScript标准里随处可寻。执行栈栈顶的元素就是当前的Execution Context。那么Execution Context包括哪些东西呢？
 
 Execution Context包括
 + code evaluation state
