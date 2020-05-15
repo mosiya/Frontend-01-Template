@@ -227,8 +227,7 @@ class ChunkedBodyParser {
 
 function utf8Length(char) {
   let length = char.codePointAt().toString(2).length;
-  if(length <= 7) return 1;
-  return Math.ceil((length - 1 ) / 5); // 推理过程详见week02 homework.md 中的02，有详细的分析
+  return length <= 7 ? 1 : Math.ceil((length - 1 ) / 5); // 推理过程详见week02 homework.md 中的02，有详细的分析
 }
 
 void async function () {
