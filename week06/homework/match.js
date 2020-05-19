@@ -3,7 +3,6 @@
 function match(string) {
   let state = start;
   for(let char of string) {
-    console.log(char)
     state = state(char);
   }
   return state === end;
@@ -66,8 +65,8 @@ function foundB3(char) {
   if(char === 'x') {
     return end;
   } else {
-    return foundA3(char);
+    return foundB2(char);
   }
 }
 
-console.log(match('I am grootabababababx'));
+console.log(match('I am grootabbabababx'));
