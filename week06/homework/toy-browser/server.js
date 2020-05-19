@@ -1,34 +1,21 @@
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
 
 const server = http.createServer((req, res) =>{
+  const fileName = path.resolve(__dirname, './index.html');
   console.log('request received');
   res.setHeader('Content-Type', 'text/html');
   res.setHeader('X-Foo', 'bar');
   res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end(
-`<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <title>Arithmetic Executor</title>
-  <link rel="stylesheet" href="index.css" />
-</head>
-<body>
-  <label for="input">Input:</label>
-  <input style="width: 20em" type="text" id="input" value="" placeholder="please input a simple arithmetic expression" />
-  <button id="calc">Calc</button>
-  <span class="tip">You can trigger calc by press <code>Enter</code></span>
-  <div class="result">
-    <h1>Result:&ensp;</h1>
-    <div id="result"></div>
-  </div>
-  <div class="result">
-    <h1>Answer:&ensp;</h1>
-    <div id="answer"></div>
-  </div>
-</body>
-</html>`);
+  // 文件读取的方式
+  fs.readFile(fileName, (err, data) => {
+    res.end(data);
+    console.log('file get√')
+  })
+  // 数据流式传输方式
+  // let stream = fs.createReadStream(fileName);
+  // stream.pipe(res);
 })
 
 server.listen(8088);

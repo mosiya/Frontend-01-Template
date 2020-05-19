@@ -1,8 +1,102 @@
+let css = require('css');
+
 let currentToken = null;
 let currentAttibute = null;
 
 let stack = [{type: 'document', children: []}];
 let currentTextNode = null;
+
+// 加入一个新的函数，addCSSRules，这里我们把CSS规则暂存到一个数组里
+let rules = [];
+function addCSSRules(text) {
+  let ast = css.parse(text);
+  // console.log(JSON.stringify(ast, null, "  "));
+  rules.push(...ast.stylesheet.rules);
+}
+
+function match(element, selector) {
+  if(!selector || !element.attributes) return false;
+
+  let attr;
+  if(selector.charAt() == '#') {
+    attr = element.attributes.filter(attr => attr.name === 'id')[0];
+    if(attr && attr.value === selector.replace('#', '')) return true;
+  } else if(selector.charAt() === '.') {
+    attr = element.attributes.filter(attr => attr.name === 'class')[0];
+    if(attr && attr.value === selector.replace('.', '')) return true;
+  } else {
+    if(element.tagName === selector) return true;
+  }
+
+  return false;
+}
+
+// 未实现复合选择器，如a.class#id
+function specificity(selector) {
+  let p = [0, 0, 0, 0];
+  let selectorParts = selector.split(' ');
+  for(let part of selectorParts) {
+    if(part.charAt(0) == '#') {
+      p[1] += 1;
+    } else if(part.charAt(0) == '.') {
+      p[2] += 1;
+    } else {
+      p[3] += 1;
+    }
+  }
+  return p;
+}
+
+function compare(sp1, sp2) {
+  if(sp1[0] - sp2[0]) return sp1[0] - sp2[0];
+  if(sp1[1] - sp2[1]) return sp1[1] - sp2[1];
+  if(sp1[2] - sp2[2]) return sp1[2] - sp2[2];
+
+  return sp1[3] - sp2[3];
+}
+
+function computeCSS(element) {
+  let elements = stack.slice().reverse();
+  if(!element.computedStyle) {
+    element.computedStyle = {};
+  }
+
+  for(let rule of rules) {
+    let selectorParts = rule.selectors[0].split(' ').reverse();
+
+    if(!match(element, selectorParts[0])) continue; // 之所以提前判断是因为只要当前元素不匹配，那么说明不可能匹配，故直接跳过以下操作
+
+    let matched = false;
+
+    let j = 1; // 之所以从1开始是因为当前元素匹配的判断依据在上面做了
+    for(let i = 0; i < elements.length; i++) {
+      if(match(elements[i]), selectorParts[j]) {
+        j++;
+      }
+    }
+
+    if(j >= selectorParts.length) { // 一般是等于
+      matched = true;
+    }
+    if(matched) {
+      let sp = specificity(rule.selectors[0]);
+      let computedStyle = element.computedStyle;
+      for(let declaration of rule.declarations) {
+        if(!computedStyle[declaration.property]) {
+          computedStyle[declaration.property] = {};
+        }
+
+        if(!computedStyle[declaration.property].specificity) {
+          computedStyle[declaration.property].value = declaration.value;
+          computedStyle[declaration.property].specificity = sp;
+        } else if(compare(computedStyle[declaration.property].specificity, sp) < 0) {
+          computedStyle[declaration.property].value = declaration.value;
+          computedStyle[declaration.property].specificity = sp;
+        }
+      }
+    }
+  }
+}
 
 function emit(token) {
   let top = stack[stack.length - 1];
@@ -23,9 +117,10 @@ function emit(token) {
         })
       }
     }
+    computeCSS(element);
 
     top.children.push(element);
-    element.parent = top;
+    // element.parent = top;
 
     if(!token.isSelfClosing) {
       stack.push(element);
@@ -36,6 +131,9 @@ function emit(token) {
     if(top.tagName != token.tagName) {
       throw new Error('Tag start end doesn\'t match!');
     } else {
+      if(top.tagName == 'style') {
+        addCSSRules(top.children[0].content);
+      }
       stack.pop();
     }
     currentTextNode = null;
@@ -278,5 +376,5 @@ module.exports.parserHTML = function parsrHTML(html) {
     state = state(c);
   }
   state = state(EOF);
-  console.log(stack[0])
+  return stack[0];
 }
