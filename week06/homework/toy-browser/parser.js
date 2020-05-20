@@ -17,18 +17,22 @@ function addCSSRules(text) {
 function match(element, selector) {
   if(!selector || !element.attributes) return false;
 
-  let attr;
-  if(selector.charAt() == '#') {
-    attr = element.attributes.filter(attr => attr.name === 'id')[0];
-    if(attr && attr.value === selector.replace('#', '')) return true;
-  } else if(selector.charAt() === '.') {
-    attr = element.attributes.filter(attr => attr.name === 'class')[0];
-    if(attr && attr.value === selector.replace('.', '')) return true;
-  } else {
-    if(element.tagName === selector) return true;
-  }
+  // 处理形如a.class#id的选择器
+  let combineSelectors = selector.split(/(?=[.#])/);
 
-  return false;
+  for(s of combineSelectors) {
+    let attr;
+    if(s.charAt() == '#') {
+      attr = element.attributes.filter(attr => attr.name === 'id')[0];
+      if(!attr || attr.value !== selector.replace('#', '')) return false;
+    } else if(s.charAt() === '.') {
+      attr = element.attributes.filter(attr => attr.name === 'class')[0];
+      if(!attr || attr.value.split(' ').indexOf(s.replace('.', '')) === -1) return false;
+    } else {
+      if(element.tagName !== s) return false;
+    }
+  }
+  return true;
 }
 
 // 未实现复合选择器，如a.class#id
@@ -36,13 +40,16 @@ function specificity(selector) {
   let p = [0, 0, 0, 0];
   let selectorParts = selector.split(' ');
   for(let part of selectorParts) {
-    if(part.charAt(0) == '#') {
-      p[1] += 1;
-    } else if(part.charAt(0) == '.') {
-      p[2] += 1;
-    } else {
-      p[3] += 1;
-    }
+    let parts = part.split(/(?=[.#])/);
+    parts.forEach(item => {
+      if(item.charAt(0) == '#') {
+        p[1] += 1;
+      } else if(item.charAt(0) == '.') {
+        p[2] += 1;
+      } else {
+        p[3] += 1;
+      }
+    })
   }
   return p;
 }
@@ -86,10 +93,10 @@ function computeCSS(element) {
           computedStyle[declaration.property] = {};
         }
 
-        if(!computedStyle[declaration.property].specificity) {
+        if(!computedStyle[declaration.property].specificity) { // 如果当前样式不存在，则直接进行复制
           computedStyle[declaration.property].value = declaration.value;
           computedStyle[declaration.property].specificity = sp;
-        } else if(compare(computedStyle[declaration.property].specificity, sp) <= 0) {
+        } else if(compare(sp, computedStyle[declaration.property].specificity) >= 0) { // 当前选择器优先级大于等于element的选择器优先级时进行样式覆盖
           computedStyle[declaration.property].value = declaration.value;
           computedStyle[declaration.property].specificity = sp;
         }
@@ -390,6 +397,7 @@ module.exports.parseHTML = function parseHTML(html) {
       state = state(c);
     } catch(e) {
       console.log('=========error start============');
+      console.log('char', c);
       console.log('state', state);
       console.log('error', e);
       console.log('=========error end============');
