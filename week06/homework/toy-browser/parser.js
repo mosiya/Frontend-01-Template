@@ -89,7 +89,7 @@ function computeCSS(element) {
         if(!computedStyle[declaration.property].specificity) {
           computedStyle[declaration.property].value = declaration.value;
           computedStyle[declaration.property].specificity = sp;
-        } else if(compare(computedStyle[declaration.property].specificity, sp) < 0) {
+        } else if(compare(computedStyle[declaration.property].specificity, sp) <= 0) {
           computedStyle[declaration.property].value = declaration.value;
           computedStyle[declaration.property].specificity = sp;
         }
@@ -178,11 +178,8 @@ function tagOpen(c) {
     }
     return tagName(c);
   } else {
-    emit({
-      type: text,
-      content: c
-    })
-    return ;
+    // invalid-first-character-of-tag-name parse error
+    return data(c);
   }
 }
 
@@ -194,11 +191,14 @@ function endTagOpen(c) {
     }
     return tagName(c)
   } else if(c == '>') {
-    // return data;
+    // missing-end-tag-name parse error
+    return data;
   } else if(c == EOF) {
-    // return ;
+    // eof-before-tag-name parse error
+    return 'endTagOpen: EOF';
   } else {
-
+    // invalid-first-character-of-tag-name parse error
+    return 'endTagOpen: else';
   }
 }
 
@@ -225,9 +225,9 @@ function beforeAttributeName(c) {
   } else if(c == '/' || c == '>' || c == EOF) {
     return afterAttributeName(c);
   } else if(c == '=') {
-
-    // 抛错
-    // return attributeName;
+    // unexpected-equals-sign-before-attribute-name parse error
+    // Start a new attribute in the current tag token. Set that attribute's name to the current input character, and its value to the empty string.
+    return 'beforeAttributeName: =';
   } else {
     currentAttibute = {
       name: '',
@@ -243,9 +243,9 @@ function attributeName(c) {
   } else if(c == '=') {
     return beforeAttributeValue;
   } else if(c == '\u0000') {
-
-  } else if(c == '\'' || c == '"' || c == '<') {
-
+    return 'attributeName: null';
+  } else if(c == '\'' || c == '\"' || c == '<') {
+    return 'attributeName: \' \" <';
   } else {
     currentAttibute.name += c; // toLowerCase();
     return attributeName;
@@ -264,7 +264,8 @@ function afterAttributeName(c) {
     emit(currentToken);
     return data;
   } else if(c == EOF) {
-
+    // eof-in-tag parse error.
+    return 'afterAttributeName: EOF';
   } else {
     currentToken[currentAttibute.name] = currentAttibute.value;
     currentAttibute = {
@@ -283,7 +284,9 @@ function beforeAttributeValue(c) {
   } else if(c == '\'') {
     return singleQuotedAttributeValue;
   } else if(c == '>') {
-    // return data;
+    // missing-attribute-value parse error
+    emit(currentToken);
+    return data;
   } else {
     return unquotedAttributeValue(c);
   }
@@ -294,9 +297,11 @@ function doubleQuotedAttributeValue(c) {
     currentToken[currentAttibute.name] = currentAttibute.value;
     return afterQuotedAttributeValue;
   } else if(c == '\u0000') {
-
+    // unexpected-null-character parse error
+    return 'doubleQuotedAttributeValue: null';
   } else if(c == EOF) {
-
+    // eof-in-tag parse error
+    return 'doubleQuotedAttributeValue: EOF';
   } else {
     currentAttibute.value += c;
     return doubleQuotedAttributeValue;
@@ -308,29 +313,14 @@ function singleQuotedAttributeValue(c) {
     currentToken[currentAttibute.name] = currentAttibute.value;
     return afterQuotedAttributeValue;
   } else if(c == '\u0000') {
-
+    // unexpected-null-character parse error
+    return 'singleQuotedAttributeValue: null';
   } else if(c == EOF) {
-
+    // eof-in-tag parse error
+    return 'singleQuotedAttributeValue: EOF';
   } else {
     currentAttibute.value += c;
-    return doubleQuotedAttributeValue;
-  }
-}
-
-function afterQuotedAttributeValue(c) {
-  if(c.match(/^[\t\n\f ]$/)) {
-    return beforeAttributeName;
-  } else if(c == '/') {
-    return selfClosingStartTag;
-  } else if(c == '>') {
-    currentToken[currentAttibute.name] = currentAttibute.value;
-    emit(currentToken);
-    return data;
-  } else if(c == EOF) {
-
-  } else {
-    currentAttibute.value += c; // toLowerCase()
-    return doubleQuotedAttributeValue;
+    return singleQuotedAttributeValue;
   }
 }
 
@@ -346,14 +336,35 @@ function unquotedAttributeValue(c) {
     emit(currentToken);
     return data;
   } else if(c == '\u0000') {
-    // return data;
-  } else if(c == '"' || c == '\'' || c == '<' || c == '=' || c == '`'){
-
+    // unexpected-null-character parse error
+    return 'unquotedAttributeValue: null';
+  } else if(c == '\"' || c == '\'' || c == '<' || c == '=' || c == '`'){
+    // unexpected-character-in-unquoted-attribute-value parse error
+    return 'unquotedAttributeValue: \"\'<=`';
   } else if(c == EOF) {
-
+    // eof-in-tag parse error
+    return 'unquotedAttributeValue: EOF';
   } else {
     currentAttibute.value += c;
     return unquotedAttributeValue;
+  }
+}
+
+function afterQuotedAttributeValue(c) {
+  if(c.match(/^[\t\n\f ]$/)) {
+    return beforeAttributeName;
+  } else if(c == '/') {
+    return selfClosingStartTag;
+  } else if(c == '>') {
+    currentToken[currentAttibute.name] = currentAttibute.value;
+    emit(currentToken);
+    return data;
+  } else if(c == EOF) {
+    // eof-in-tag parse error
+    return 'afterQuotedAttributeValue: EOF';
+  } else {
+    // missing-whitespace-between-attributes parse error
+    return 'afterQuotedAttributeValue: else';
   }
 }
 
@@ -363,17 +374,27 @@ function selfClosingStartTag(c) {
     emit(currentToken);
     return data;
   } else if(c == EOF) {
-
+    // eof-in-tag parse error
+    return 'selfClosingStartTag: EOF';
   } else {
-
+    // unexpected-solidus-in-tag parse error
+    return 'selfClosingStartTag: else';
   }
 }
 
-module.exports.parserHTML = function parsrHTML(html) {
+module.exports.parseHTML = function parseHTML(html) {
   let state = data;
   for(let c of html) {
     // console.log(c);/
-    state = state(c);
+    try {
+      state = state(c);
+    } catch(e) {
+      console.log('=========error start============');
+      console.log('state', state);
+      console.log('error', e);
+      console.log('=========error end============');
+      return;
+    }
   }
   state = state(EOF);
   return stack[0];
