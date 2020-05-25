@@ -14,6 +14,7 @@ function addCSSRules(text) {
   rules.push(...ast.stylesheet.rules);
 }
 
+// 已实现复合选择器的匹配，如a.class#id
 function match(element, selector) {
   if(!selector || !element.attributes) return false;
 
@@ -35,7 +36,7 @@ function match(element, selector) {
   return true;
 }
 
-// 未实现复合选择器，如a.class#id
+// 已实现复合选择器，如a.class#id
 function specificity(selector) {
   let p = [0, 0, 0, 0];
   let selectorParts = selector.split(' ');
@@ -392,7 +393,6 @@ function selfClosingStartTag(c) {
 module.exports.parseHTML = function parseHTML(html) {
   let state = data;
   for(let c of html) {
-    // console.log(c);/
     try {
       state = state(c);
     } catch(e) {
