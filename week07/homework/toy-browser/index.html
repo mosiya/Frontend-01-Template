@@ -3,38 +3,29 @@
     <meta charset="UTF-8" />
     <title>Document</title>
     <style>
-    body div #myid{
-      width:100px;
+    #container{
+      width: 500px;
+      height: 200px;
+      display: flex;
+      background-color: rgb(255, 255, 255);
+    }
+
+    #container #myid{
+      width: 200px;
+      height: 100px;
       background-color: #ff5000;
     }
-    body div img{
-      width:30px;
-      background-color: #ff1111;
-    }
-    body .a.b.c.d {
-      background-color: pink;
-      padding: 0 20px;
-      color: white;
-      border-radius: 5px;
-    }
-    body div .a.b.d.c {
-      background-color: red;
-      padding: 0 30px;
-      border-radius: 10px;
-    }
-    body span.a.b.d.c {
-      background-color: black;
-      padding: 0 40px;
-      border-radius: 15px;
+    #container .c1{
+      flex: 1;
+      background-color: rgb(0, 255, 0);
     }
 
   </style>
 </head>
 <body>
-  <div>
-    <img id="myid" />
-    <img />
-    <span class="a b c d">hello 莫斯雅~</span>
+  <div id="container">
+    <div id="myid"></div>
+    <div class="c1"></div>
   </div>
 </body>
 </html>
