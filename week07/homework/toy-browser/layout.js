@@ -207,7 +207,7 @@ function layout(element) {
           let itemStyle = getStyle(item);
 
           if(itemStyle.flex) {
-            itemStyle[mainStart] = (mainSpace / flexTotal) * itemStyle.flex;
+            itemStyle[mainSize] = (mainSpace / flexTotal) * itemStyle.flex;
           }
           itemStyle[mainStart] = currentMain;
           itemStyle[mainEnd] = itemStyle[mainStart] + mainSign * itemStyle[mainSize];
@@ -257,6 +257,7 @@ function layout(element) {
       elementStyle[crossSize] = elementStyle[crossSize] + flexLine.crossSpace;
     }
   } else {
+    // 如果存在父元素交叉轴空间，则crossSpace储存剩余空间
     crossSpace = elementStyle[crossSize];
     for(let flexLine of flexLines) {
       crossSpace -= flexLine.crossSpace;
@@ -276,7 +277,7 @@ function layout(element) {
     step = 0;
   }
   if(elementStyle.alignContent === 'flex-end') {
-    crossBase += crossSize * crossSpace;
+    crossBase += crossSign * crossSpace;
     step = 0;
   }
   if(elementStyle.alignContent === 'center') {
@@ -296,7 +297,7 @@ function layout(element) {
     step = 0;
   }
   flexLines.forEach(items => {
-    let lineCrossSize = elementStyle.alignContent === 'strech' ? items.crosSpace + crossSpace / flexLines.length : items.crosSpace;
+    let lineCrossSize = elementStyle.alignContent === 'strech' ? items.crossSpace + crossSpace / flexLines.length : items.crossSpace;
     for(let item of items) {
       let itemStyle = getStyle(item);
 
@@ -311,8 +312,8 @@ function layout(element) {
         itemStyle[crossEnd] = itemStyle[crossStart] + crossSign * itemStyle[crossSize];
       }
       if(align === 'flex-end') {
-        itemStyle[crossEnd] = crossBase + crossSign * lineCrossSize;
-        itemStyle[crossStart] = itemStyle[crossEnd] - crossSign * itemStyle[crossSize];
+        itemStyle[crossStart] = crossBase + crossSign * (lineCrossSize - itemStyle[crossSize]);
+        itemStyle[crossEnd] = itemStyle[crossStart] + crossSign * itemStyle[crossSize];
       }
       if(align === 'center') {
         itemStyle[crossStart] = crossBase + crossSign * (lineCrossSize - itemStyle[crossSize]) / 2;
@@ -325,9 +326,9 @@ function layout(element) {
         itemStyle[crossSize] = crossSign * (itemStyle[crossEnd] - itemStyle[crossStart]);
       }
     }
-    crossBase +=crossSign * (lineCrossSize + step);
+    crossBase += crossSign * (lineCrossSize + step);
   })
-  console.log(items)
+  // console.log(items)
 }
 
 module.exports = layout;
