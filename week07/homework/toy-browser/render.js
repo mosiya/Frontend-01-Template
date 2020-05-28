@@ -27,7 +27,7 @@ function render(viewport, element) {
         blue = Number('0x' + RegExp.$3);
       }
       img.fill(red, green, blue, 1);
-      viewport.draw(img, element.style.left || 0, element.style.top || 0);
+      viewport.draw(img, element.style.left || 0, element.style.top < 0 ? 0 : element.style.top);
     }
   }
 
