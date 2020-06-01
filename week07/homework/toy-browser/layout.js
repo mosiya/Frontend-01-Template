@@ -1,3 +1,8 @@
+function isEmptyObject(obj) {
+  let keys = Object.keys(obj);
+  return keys.length > 0;
+}
+
 function getStyle(element) {
   if(!element.style) {
     element.style = {};
@@ -13,28 +18,26 @@ function getStyle(element) {
     }
   }
 
+  ['width', 'height'].forEach(size => {
+    if(element.style[size] === 'auto' || element.style[size] === void 0) {
+      element.style[size] = null;
+    }
+  })
+
   return element.style;
 }
 
 
 function layout(element) {
-  if(!element.computedStyle) return;
-
+  if(!isEmptyObject(element.computedStyle)) return;
+  
   let elementStyle = getStyle(element);
 
   if(elementStyle.display != 'flex') return;
 
-  let items = element.children.filter(e => e.type === 'element');
-
-  items.sort((a, b) => (a.order || 0) - (b.order || 0));
+  let items = element.children.filter(e => e.type === 'element').sort((a, b) => (a.style.order || 0) - (b.style.order || 0));
 
   let style = elementStyle; // 为了简化以下的一系列判断和初始化
-
-  ['width', 'height'].forEach(size => {
-    if(style[size] === 'auto' || style[size] === void 0) {
-      style[size] = null;
-    }
-  })
 
   if(!style['flex-direction'] || style['flex-direction'] == 'auto') {
     style['flex-direction'] = 'row';
@@ -101,9 +104,6 @@ function layout(element) {
   }
 
   if(style['flex-wrap'] == 'wrap-reverse') {
-    // let tmp = crossStart;
-    // crossStart = crossEnd;
-    // crossEnd = tmp;
     [crossStart, crossEnd] = [crossEnd, crossStart];
     crossSign = -1;
   } else {
@@ -273,7 +273,6 @@ function layout(element) {
     crossBase = 0;
   }
 
-  let lineSize = elementStyle[crossSize] / flexLines.length;
   let step;
   if(elementStyle['align-content'] === 'flex-start') {
     crossBase += 0;

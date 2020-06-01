@@ -17,18 +17,20 @@
       flex-wrap: wrap;
       align-content: space-around;
       justify-content: center;
-      flex-direction: column-reverse;
+      flex-direction: column;
     }
 
     #container #myid{
       width: 200px;
       height: 200px;
       background-color: #ff5000;
+      order: 2;
     }
     #container .c1{
       width: 150px;
       height: 150px;
       background-color: rgb(0, 208, 255);
+      order: 1;
     }
     #container .c2{
       width: 100px;
@@ -46,8 +48,8 @@
   <div id="container">
     <div id="myid"></div>
     <div class="c1"></div>
-    <div class="c1 c2"></div>
-    <div class="c1 c3"></div>
+    <div class="c2"></div>
+    <div class="c3"></div>
   </div>
 </body>
 </html>
