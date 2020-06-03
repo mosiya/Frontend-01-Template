@@ -1,0 +1,55 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>flex</title>
+    <style>
+    body {
+      width: 800px;
+      height: 600px;
+      background-color: #fadffe;
+    }
+    #container{
+      width: 400px;
+      height: 500px;
+      display: flex;
+      background-color: rgb(255, 255, 255);
+      align-items: flex-end;
+      flex-wrap: wrap;
+      align-content: space-around;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    #container #myid{
+      width: 200px;
+      height: 200px;
+      background-color: #ff5000;
+      order: 2;
+    }
+    #container .c1{
+      width: 150px;
+      height: 150px;
+      background-color: rgb(0, 208, 255);
+      order: 1;
+    }
+    #container .c2{
+      width: 100px;
+      height: 100px;
+      background-color: rgb(0, 255, 38);
+    }
+    #container .c3{
+      width: 50px;
+      height: 50px;
+      background-color: rgb(255, 247, 0);
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="myid"></div>
+    <div class="c1"></div>
+    <div class="c2"></div>
+    <div class="c3"></div>
+  </div>
+</body>
+</html>
