@@ -110,7 +110,10 @@ CSS选择器选中的**元素**，在排版时可能产生多个**盒**
   + content-box：width = content
   + border-box：width = content + padding + border
 
-#### 正常流
+
+#### 正常流（一代排版方式）
+
+包括float、position为非static的布局方式
 
 思考：我们如何写字
 + 从左到右书写
@@ -122,3 +125,32 @@ CSS选择器选中的**元素**，在排版时可能产生多个**盒**
 + 计算盒在行中的排布
 + 计算行的排布
 
+#### 正常流的行模型
+
+#### overflow: visible与BFC
+
+#### margin折叠
+
++ block-level 表示可以被放入bfc
++ block-container 表示可以容纳bfc
++ block-box = block-level + block-container
++ block-box 如果 overflow 是 visible， 那么就跟父bfc合并
+
+#### Flex排版
+
++ 收集盒进行
++ 计算盒在主轴方向的排布
++ 计算盒在交叉轴方向的排布
+
+##### 分行
++ 根据主轴尺寸，把元素分进行
++ 若设置了no-wrap，则强行分配进第一行
+
+##### 计算主轴方向
++ 找出所有Flex元素
++ 把主轴方向的剩余尺寸按比例分配给这些元素
++ 若剩余空间为负数，所有flex元素为0，等比压缩剩余元素
+
+##### 计算交叉轴方向
++ 根据每一行中最大元素尺寸计算行高
++ 根据行高align-items和align-self以及align-content，确定元素具体位置
