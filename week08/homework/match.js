@@ -1,20 +1,21 @@
+// 判断简单选择器是否匹配
 function isSimpleSelectorMatched(selector, element) {
     let attr;
     if(selector.charAt() === '#') {
         attr = element.id;
-        if(attr && attr === selector.slice(1)) return element;
+        return attr && attr === selector.slice(1);
     }
     else if(selector.charAt() === '.') {
         attr = [].slice.call(element.classList);
-        if(attr && attr.indexOf(selector.slice(1)) !== -1) return element;
+        return attr && attr.indexOf(selector.slice(1)) !== -1
     }
     else {
-        if(element.tagName.toLowerCase() === selector) return element;
+        return element.tagName.toLowerCase() === selector;
     }
-    return null;
 }
-
+// 决定是否要返回该元素
 function getCompoundSelectorMatchedElement(selector, element) {
+    // 9表示该元素是文档节点
     if(!element || element.nodeType === 9) return null;
     let selectors = selector.split(/(?=[.#])/);
     return selectors.every(item => isSimpleSelectorMatched(item, element)) ? element : null;
@@ -24,19 +25,19 @@ function  getAncestorMatchedElement(selectorParent, element) {
     while(element && !getCompoundSelectorMatchedElement(selectorParent, element.parentNode)) {
         element = element.parentNode;
     }
-    return element && getCompoundSelectorMatchedElement(selectorParent, element.parentNode) || null;
+    return element && getCompoundSelectorMatchedElement(selectorParent, element.parentNode);
 }
 
 function  getParentMatchedElement(selectorParent, element) {
     element = element.parentNode;
-    return element && getCompoundSelectorMatchedElement(selectorParent, element.parentNode);
+    return element && getCompoundSelectorMatchedElement(selectorParent, element);
 }
 
 function  getPrecedingSiblingMatchedElement(selectorSibling, element) {
     while(element && !getCompoundSelectorMatchedElement(selectorSibling, element.previousElementSibling)) {
         element = element.previousElementSibling;
     }
-    return element && getCompoundSelectorMatchedElement(selectorSibling, element.previousElementSibling) || null;
+    return element && getCompoundSelectorMatchedElement(selectorSibling, element.previousElementSibling);
 }
 
 function  getPreviousSiblingMatchedElement(selectorSibling, element) {
@@ -45,7 +46,14 @@ function  getPreviousSiblingMatchedElement(selectorSibling, element) {
 }
 
 function removeExtraSpace(selector) {
-    return selector.replace(/\s*([>+~])\s*/, '$1').replace(/\s+/g, ' ');
+    return selector.replace(/\s*([>+~])\s*/g, '$1').replace(/\s+/g, ' ');
+}
+
+let getElementFns = {
+    ' ': getAncestorMatchedElement,
+    '~': getPrecedingSiblingMatchedElement,
+    '>': getParentMatchedElement,
+    '+': getPreviousSiblingMatchedElement
 }
 
 function getComplexSelectorMatchedElement(selectors, element) {
@@ -54,22 +62,8 @@ function getComplexSelectorMatchedElement(selectors, element) {
     let combinator = selectors[1];
     let selector = selectors.shift();
         selectors.shift();
-    if(combinator === ' ') {
         element = getComplexSelectorMatchedElement(selectors, element);
-        return getAncestorMatchedElement(selector, element);
-    }
-    else if(combinator === '~') {
-        element = getComplexSelectorMatchedElement(selectors, element);
-        return getPrecedingSiblingMatchedElement(selector, element);
-    }
-    else if(combinator === '>') {
-        element = getComplexSelectorMatchedElement(selectors, element);
-        return getParentMatchedElement(selector, element);
-    }
-    else if(combinator === '+') {
-        element = getComplexSelectorMatchedElement(selectors, element);
-        return getPreviousSiblingMatchedElement(selector, element);
-    }
+    return element && getElementFns[combinator](selector, element)
 }
 
 function isMatched(selector, element) {
@@ -81,4 +75,4 @@ function isMatched(selector, element) {
 }
  
  
-console.log(isMatched("body  div   div + span#id", document.getElementById("id")));
+console.log(isMatched("body   >   div   div    +  span#id", document.getElementById("id")));
