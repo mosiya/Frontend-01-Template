@@ -72,5 +72,5 @@ function isMatched(selector, element) {
     return !!getComplexSelectorMatchedElement(selectors, element);
 }
  
- 
-console.log(isMatched("body   >   div   div + span#id", document.getElementById("id")));
+//  未完待续
+console.log(isMatched("body      div   div + span#id", document.getElementById("id")));
