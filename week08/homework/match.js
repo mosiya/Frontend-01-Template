@@ -1,4 +1,3 @@
-// 判断简单选择器是否匹配
 function isSimpleSelectorMatched(selector, element) {
     let attr;
     if(selector.charAt() === '#') {
@@ -59,9 +58,8 @@ let getElementFns = {
 function getComplexSelectorMatchedElement(selectors, element) {
     if(selectors.length < 2) return getCompoundSelectorMatchedElement(selectors.pop(), element);
 
-    let combinator = selectors[1];
     let selector = selectors.shift();
-        selectors.shift();
+    let combinator = selectors.shift();
         element = getComplexSelectorMatchedElement(selectors, element);
     return element && getElementFns[combinator](selector, element)
 }
@@ -75,4 +73,4 @@ function isMatched(selector, element) {
 }
  
  
-console.log(isMatched("body   >   div   div    +  span#id", document.getElementById("id")));
+console.log(isMatched("body   >   div   div + span#id", document.getElementById("id")));
