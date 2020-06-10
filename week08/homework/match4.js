@@ -31,21 +31,21 @@ function getComplexSelectorMatchedElement(selectors, element) {
     switch (selector) {
       case ' ':
         do {
-          element = element && element.parentNode;
-        } while (element && !getComplexSelectorMatchedElement([...selectors], element))
+          element = element.parentNode;
+        } while (element && !getComplexSelectorMatchedElement([...selectors], element)) // 发生回溯，故需要复制一份selectors
         break;
       case '>':
-        element = element && element.parentNode;
+        element = element.parentNode;
         if (element)
           element = getComplexSelectorMatchedElement(selectors, element);
         break;
       case '~':
         do {
-          element = element && element.previousElementSibling;
-        } while (element && !getComplexSelectorMatchedElement([...selectors], element))
+          element = element.previousElementSibling;
+        } while (element && !getComplexSelectorMatchedElement([...selectors], element)) // 发生回溯，故需要复制一份selectors
         break;
       case '+':
-        element = element && element.previousElementSibling;
+        element = element.previousElementSibling;
         if (element)
           element = getComplexSelectorMatchedElement(selectors, element);
         break;
@@ -67,6 +67,6 @@ function isMatched(selector, element) {
 
 console.log(isMatched("body  > div span ~ div + span#id", document.getElementById("id")));
 
-console.log(isMatched("body  div  span", document.getElementById("id")));
+console.log(isMatched("body  div  +span", document.getElementById("id")));
 
-console.log(isMatched("body   >  div  div  div + span#id", document.getElementById("id")));
+console.log(isMatched("body   >  div div   div + span#id", document.getElementById("id")));
