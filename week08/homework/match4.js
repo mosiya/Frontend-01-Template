@@ -20,7 +20,7 @@ function getCompoundSelectorMatchedElement(selector, element) {
 }
 
 function removeExtraSpace(selector) {
-  return selector.replace(/\s*([>+~])\s*/g, '$1').replace(/\s+/g, ' ');
+  return selector.trim().replace(/\s*([>+~])\s*/g, '$1').replace(/\s+/g, ' ');
 }
 
 function getComplexSelectorMatchedElement(selectors, element) {

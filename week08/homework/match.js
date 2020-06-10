@@ -45,7 +45,7 @@ function  getPreviousSiblingMatchedElement(selectorSibling, element) {
 }
 
 function removeExtraSpace(selector) {
-    return selector.replace(/\s*([>+~])\s*/g, '$1').replace(/\s+/g, ' ');
+    return selector.trim().replace(/\s*([>+~])\s*/g, '$1').replace(/\s+/g, ' ');
 }
 
 let getElementFns = {
@@ -72,5 +72,5 @@ function isMatched(selector, element) {
     return !!getComplexSelectorMatchedElement(selectors, element);
 }
  
-//  未完待续
+// 抛弃了，看match4吧
 console.log(isMatched("body   >  div   div + span#id", document.getElementById("id"))); // 错误
