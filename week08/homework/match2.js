@@ -1,4 +1,4 @@
-// 组长的实现
+// 组长的实现，待验证
 function matchByClassSelector(selector, element) {
   return element.className.split(/\s+/g).includes(selector.replace('.', ''))
 }
@@ -54,7 +54,8 @@ function matchBySimpleSelector(selector, element) {
   } else if (selector.match(/^\[(.+?)\]$/)) { // attrib
     return matchByAttributeSelector(selector, element)
   } else if (selector.match(/^:not\((.+)\)$/)) { // negation
-    return !matchBySimpleSelectorSequence(RegExp.$1, element)
+    selector = RegExp.$1.replace(/:not\(.*?\)/g, '') // 忽略:not()内的:not选择器
+    return !matchBySimpleSelectorSequence(selector, element)
   } else { // type_selector  
     return matchByTypeSelector(selector, element)
   }
@@ -66,53 +67,73 @@ function matchBySimpleSelectorSequence(simpleSelectorSequence, element) {
     return false
   }
   // `a#id.link[src^="https"]:not([targer='_blank'])` -> ["a", "#id", ".link", "[src^="https"]", ":not([targer='_blank'])"]
-  const simpleSelectors = simpleSelectorSequence.split(/(?<=[\w\]\)])(?=[#.:\[])/)
+  const simpleSelectors = simpleSelectorSequence.split(/(?<!\([^\)]*)(?=[#\.\[:])/g)
   return simpleSelectors.every(simpleSelector => matchBySimpleSelector(simpleSelector, element))
 }
 
-// 获取下一个待考查的元素
-function getNextElementKey(combinator) {
-  return {
+// 查找一个与选择器匹配的element
+function findMatchedElement(selectorPart, element) {
+  if (!selectorPart || !element) {
+    return null
+  }
+  const [selector, combinator] = selectorPart.split(/(?=[ ~+>]$)/)
+  const nextElementKey = {
     '>': 'parentElement',
     ' ': 'parentElement',
     '+': 'previousElementSibling',
     '~': 'previousElementSibling',
   }[combinator]
-}
 
-// 查找一个与选择器匹配的element
-function findMatchedElement(selector, element) {
-  if (!selector || !element) {
-    return null
-  }
-  const combinator = /[>+ ~]$/.test(selector) ? selector[selector.length - 1] : ''
-  const nextElementKey = getNextElementKey(combinator)
-
-  if (/[>+]$/.test(selector)) {  // Child combinator OR Next-sibling combinator
-    selector = selector.replace(/[>+]$/, '')
+  if (/^[>+]$/.test(combinator)) {  // Child combinator OR Next-sibling combinator
     element = element[nextElementKey]
     if (!matchBySimpleSelectorSequence(selector, element)) {
       element = null
     }
-  } else if (/[ ~]$/.test(selector)) {  // Descendant combinator OR Subsequent-sibling combinator
-    selector = selector.replace(/[ ~]$/, '')
+  } else if (/^[ ~]$/.test(combinator)) {  // Descendant combinator OR Subsequent-sibling combinator
     do {
       element = element[nextElementKey]
-    } while (element && !matchBySimpleSelectorSequence(selector, element))
+      const matchedElement = findMatchedElementByComplexSelector(selector, element)
+      if (matchedElement) {
+        element = matchedElement
+        break
+      }
+    } while (element)
   } else if (!matchBySimpleSelectorSequence(selector, element)) { // 唯一没有combinator的当前元素
     element = null
   }
   return element || null
 }
 
-// 检查一个元素和一个选择器是否匹配
-function match(selector, element) {
-  // 'body  #form > .form-title  ~ label +  [role]' -> ["body ", "#form>", ".form-title~", "label+", "[role]"]
-  const selectors = selector.trim().replace(/(?<=[~+>])\s+/g, '').replace(/\s+(?=[ ~+>])/g, '').split(/(?<=[ ~+>])/g)
-  while (element && selectors.length) {
-    element = findMatchedElement(selectors.pop(), element)
+// 查找一个与复杂选择器匹配的element，只包含>、+、~组合器
+function findMatchedElementByComplexSelector(selector, element) {
+  if (!selector || !element) {
+    return null
+  }
+  // 拆分组合器，~组合器会和+组合器合并，因为~组合器和+组合器会存在回溯的问题
+  // '.a+.b~.c>.d~.e+.f>.g' -> [".a+.b~", ".c>", ".d~", ".e+", ".f>", ".g"]
+  const selectorParts = selector.replace(/([^~>]+~(?!=)|[^+>]+?[+>])/g, '$1\0').split('\0')
+  while (element && selectorParts.length) {
+    element = findMatchedElement(selectorParts.pop(), element)
+  }
+  return element
+}
+
+function match(rule, element) {
+  if (!rule || !element) {
+    return null
+  }
+  // 拆分后代组合器，因为后代组合器和>~+组合器会存在回溯的问题
+  // '.a .b~.c>.d .e+.f .g' -> [".a ", ".b~.c>.d ", ".e+.f ", ".g"]
+  const selectorParts = rule.trim().replace(/\s*([~+ >])\s*/g, '$1').split(/(?<= )/g)
+  while (element && selectorParts.length) {
+    const selector = selectorParts.pop()
+    if (selector.endsWith(' ')) { // Descendant combinator 
+      element = findMatchedElement(selector, element)
+    } else {
+      element = findMatchedElementByComplexSelector(selector, element)
+    }
   }
   return !!element
 }
 
-console.log(match("body   >   div   div + span#id", document.getElementById("id")));
+console.log(match("body   div   div  + span#id", document.getElementById("id"))); 

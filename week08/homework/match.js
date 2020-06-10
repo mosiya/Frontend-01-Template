@@ -67,10 +67,10 @@ function getComplexSelectorMatchedElement(selectors, element) {
 function isMatched(selector, element) {
     if(!selector || !element) return false;
     selector = removeExtraSpace(selector);
-    let selectors = selector.split(/(?=[ >~+])|(?<=[[ >~+])/g);
+    let selectors = selector.split(/(?=[ >~+])|(?<=[ >~+])/g);
 
     return !!getComplexSelectorMatchedElement(selectors, element);
 }
  
 //  未完待续
-console.log(isMatched("body      div   div + span#id", document.getElementById("id")));
+console.log(isMatched("body   >  div   div + span#id", document.getElementById("id"))); // 错误
