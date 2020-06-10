@@ -334,7 +334,7 @@ function match(selector, element) {
           switch (selectorType) {
             case 'id':
               isMatched =
-                currentElement.getAttribute('id') !== parsedSelectors.id;
+                currentElement.getAttribute('id') === parsedSelectors.id;
               break;
 
             case 'attributes':
@@ -409,4 +409,4 @@ function match(selector, element) {
   return false;
 }
 
-console.log(match("body > div div + span#id", document.getElementById("id"))); // 错误
+console.log(match("body > div div > div + span#id", document.getElementById("id"))); // 错误
