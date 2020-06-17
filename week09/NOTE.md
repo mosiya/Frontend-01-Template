@@ -20,12 +20,12 @@
 &lt;
 &amp;
 ### 合法元素
-+ Element <tagName></tagName>
-+ Text 文本
-+ Comment  <!--注释-->
-+ DocumentType <!Doctype html>
-+ ProcessingInstruction <?a1?> 处理信息(没有用)
-+ CDATA <![CDATA[]]>
++ Element __\<tagName>\</tagName>__
++ Text __文本__
++ Comment  __<\!--注释-->__
++ DocumentType __<!Doctype html>__
++ ProcessingInstruction __\<?a1?>__ 处理信息(没有用)
++ CDATA __\<![CDATA[]]>__
 ### NODE
 + Element 元素型节点
 + Document 文档根节点

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe</title>
+    <style>
+        #board {
+            width: 350px;
+        }
+        .cell {
+            width:100px;
+            height:100px;
+            background-color: rgba(0, 0, 0, 0.9);
+            display:inline-block;
+            border:solid 1px white;
+            vertical-align: middle;
+
+            line-height: 100px;
+            font-size: 50px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="board"></div>
+    <script>
+        let pattern = [
+            0,0,0,
+            0,0,0,
+            0,0,0
+        ];
+        let color = 1;
+        let chess = ['', '⭕️', '❌'];
+        let isWin = false;
+        function show() {
+            let board = document.getElementById('board');
+            
+            for(let i = 0; i < 3; i++) {
+                for(let j = 0; j < 3; j++) {
+                    let cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.innerText = chess[pattern[i * 3 + j]]
+                    
+                    cell.addEventListener('click', move.bind(this, j, i))
+                    board.appendChild(cell)
+                }
+            }
+        }
+
+        function move(x, y, e) {
+            if(isWin) return;
+            if(pattern[y * 3 + x]) return;
+            color = 3 - color;
+            pattern[y * 3 + x] = color;
+            e.target.innerText = chess[color];
+            if(win(pattern, color, x, y)) {
+                console.log(chess[color] + ' is winner!')
+                isWin = true;
+            }
+        }
+
+        function win(pattern, color, x, y) {
+            let win = true;
+            // 横向
+            for(let j = 0; j < 3; j++) {
+                if(pattern[y * 3 + j] !== color) {
+                    win = false;
+                    break;
+                }
+            }
+            if(win) return true;
+
+            // 纵向
+            win = true;
+            for(let i = 0; i < 3; i++) {
+                if(pattern[i * 3 + x] !== color) {
+                    win = false;
+                    break;
+                }
+            }
+            if(win) return true;
+
+            // 对角线提前判断
+            if(x !== y && (x + y) !== 2) return false;
+
+            // 对角线
+            win = true;
+            for(let i = 0; i < 3; i++) {
+                if(pattern[i * 3 + i] !== color) {
+                    win = false;
+                }
+            }
+            if(win) return true;
+
+            // 对角线
+            win = true;
+            for(let i = 0; i < 3; i++) {
+                if(pattern[i * 3 + 2 - i] !== color) {
+                    win = false;
+                }
+            }
+            if(win) return true;
+
+            return false;
+        }
+
+        show();
+    </script>
+</body>
+</html>
