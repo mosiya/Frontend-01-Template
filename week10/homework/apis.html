@@ -92,7 +92,205 @@
      
     names = filterOut(names, ["SyncManager"]);
      
-     
+      // webkit
+    {
+        names = names.filter(e => !e.match(/^webkit/))
+    }
+
+    // oncallback
+    {
+        names = names.filter(e => !e.match(/^on/))
+    }
+
+    // DOM 
+    // https://dom.spec.whatwg.org/
+    {
+        let objects = ["Event", "CustomEvent", "EventTarget", "AbortController", "AbortSignal", "NodeList", "HTMLCollection", "MutationObserver", "MutationRecord", "Node", "Document", "DOMImplementation", "DocumentType", "DocumentFragment", "ShadowRoot", "Element", "NamedNodeMap", "Attr", "CharacterData", "Text", "CDATASection", "ProcessingInstruction", "Comment", "StaticRange", "Range", "NodeIterator", "TreeWalker", "NodeFilter", "DOMTokenList", "XPathResult", "XPathExpression", "XPathEvaluator", "Window", "XMLDocument", "TouchEvent"]
+        names = filterOut(names, objects);
+    }
+
+    // Encoding
+    // https://encoding.spec.whatwg.org/
+    {
+        let objects = ["TextDecoder", "TextEncoder", "TextDecoderStream", "TextEncoderStream"]
+        names = filterOut(names, objects);
+    }
+    
+    // Fetch
+    // https://fetch.spec.whatwg.org/
+    {
+        let objects = ["Headers", "Request", "Response"]
+        names = filterOut(names, objects);
+    }
+
+    //http://www.ecma-international.org/ecma-402/5.0/index.html#Title
+    {
+        names = names.filter(e => e != "Intl")
+    }
+
+    // Fullscreen
+    // https://fullscreen.spec.whatwg.org/
+    {
+        let objects = ["Element", "Document"]
+        names = filterOut(names, objects);
+    }
+
+    // html
+    // https://html.spec.whatwg.org/#window
+    {
+        let objects = ["ApplicationCache","BarProp","BeforeUnloadEvent","BroadcastChannel","CanvasGradient","CanvasPattern","CloseEvent","CustomElementRegistry","DOMParser","DOMStringList","DOMStringMap","DataTransfer","DataTransferItem","DataTransferItemList","Document","DragEvent","Element","ElementInternals","ErrorEvent","EventSource","External","FormDataEvent","HTMLAllCollection","HTMLAnchorElement","HTMLAreaElement","HTMLAudioElement","HTMLBRElement","HTMLBaseElement","HTMLBodyElement","HTMLButtonElement","HTMLCanvasElement","HTMLDListElement","HTMLDataElement","HTMLDataListElement","HTMLDetailsElement","HTMLDialogElement","HTMLDirectoryElement","HTMLDivElement","HTMLElement","HTMLEmbedElement","HTMLFieldSetElement","HTMLFontElement","HTMLFormControlsCollection","HTMLFormElement","HTMLFrameElement","HTMLFrameSetElement","HTMLHRElement","HTMLHeadElement","HTMLHeadingElement","HTMLHtmlElement","HTMLIFrameElement","HTMLImageElement","HTMLInputElement","HTMLLIElement","HTMLLabelElement","HTMLLegendElement","HTMLLinkElement","HTMLMapElement","HTMLMarqueeElement","HTMLMediaElement","HTMLMenuElement","HTMLMetaElement","HTMLMeterElement","HTMLModElement","HTMLOListElement","HTMLObjectElement","HTMLOptGroupElement","HTMLOptionElement","HTMLOptionsCollection","HTMLOutputElement","HTMLParagraphElement","HTMLParamElement","HTMLPictureElement","HTMLPreElement","HTMLProgressElement","HTMLQuoteElement","HTMLScriptElement","HTMLSelectElement","HTMLSlotElement","HTMLSourceElement","HTMLSpanElement","HTMLStyleElement","HTMLTableCaptionElement","HTMLTableCellElement","HTMLTableColElement","HTMLTableElement","HTMLTableRowElement","HTMLTableSectionElement","HTMLTemplateElement","HTMLTextAreaElement","HTMLTimeElement","HTMLTitleElement","HTMLTrackElement","HTMLUListElement","HTMLUnknownElement","HTMLVideoElement","HashChangeEvent","History","ImageBitmap","ImageBitmapRenderingContext","ImageData","Location","MediaError","MessageChannel","MessageEvent","MessagePort","MimeType","MimeTypeArray","Navigator","OffscreenCanvas","PageTransitionEvent","Plugin","PluginArray","PopStateEvent","PromiseRejectionEvent","RadioNodeList","SharedWorker","Storage","StorageEvent","SubmitEvent","TextMetrics","TextTrack","TextTrackCue","TextTrackCueList","TextTrackList","TimeRanges","TrackEvent","ValidityState","WebSocket","Window","Worker"]
+        names = filterOut(names, objects);
+    }
+
+    // storage
+    // https://storage.spec.whatwg.org/
+    {
+        let objects = ["StorageManager"]
+        names = filterOut(names, objects);
+    }
+
+    // streams
+    // https://streams.spec.whatwg.org/
+    {
+        let objects = ["ReadableStream", "ReadableStreamDefaultReader", "WritableStream", "WritableStreamDefaultWriter", "TransformStream", "ByteLengthQueuingStrategy", "CountQueuingStrategy"]
+        names = filterOut(names, objects);
+    }
+
+    // url
+    // https://url.spec.whatwg.org/
+    {
+        let objects = ["URL", "URLSearchParams"]
+        names = filterOut(names, objects);
+    }
+
+    // XMLHttpRequest
+    // https://xhr.spec.whatwg.org/
+    {
+        let objects = ["XMLHttpRequest", "FormData", "ProgressEvent", "XMLHttpRequestEventTarget", "XMLHttpRequestUpload"]
+        names = filterOut(names, objects);
+    }
+
+    // WebGL
+    // https://www.khronos.org/registry/webgl/specs/latest/2.0/#3.6
+    {
+        let objects = ["WebGLQuery", "WebGLUniformLocation", "WebGLTexture", "WebGLShaderPrecisionFormat", "WebGLShader", "WebGLRenderingContext", "WebGLRenderbuffer", "WebGLProgram", "WebGLFramebuffer", "WebGLContextEvent", "WebGLBuffer", "WebGLActiveInfo", "WebGL2RenderingContext", "WebGLSampler", "WebGLSync", "WebGLTransformFeedback", "WebGLVertexArrayObject"]
+        names = filterOut(names, objects);
+    }
+
+    // Audio
+    // https://webaudio.github.io/web-audio-api/#the-waveshapernode-interface
+    {
+        let objects = ["BaseAudioContext", "AudioContext", "OfflineAudioContext", "OfflineAudioCompletionEvent", "AudioBuffer", "AudioNode", "AudioParam", "AudioScheduledSourceNode", "AnalyserNode", "AudioBufferSourceNode", "AudioDestinationNode", "AudioListener", "AudioProcessingEvent", "BiquadFilterNode", "ChannelMergerNode", "ChannelSplitterNode", "ConstantSourceNode", "ConvolverNode", "DelayNode", "DynamicsCompressorNode", "GainNode", "IIRFilterNode", "MediaElementAudioSourceNode", "MediaStreamAudioDestinationNode", "MediaStreamAudioSourceNode", "MediaStreamTrackAudioSourceNode", "OscillatorNode", "PannerNode", "PeriodicWave", "ScriptProcessorNode", "StereoPannerNode", "WaveShaperNode", "AudioWorklet", "AudioWorkletGlobalScope", "AudioWorkletNode", "AudioWorkletProcessor"]
+        names = filterOut(names, objects);
+    }
+
+    // Audio
+    // https://webaudio.github.io/web-audio-api/#the-waveshapernode-interface
+    {
+        let objects = ["BaseAudioContext", "AudioContext", "OfflineAudioContext", "OfflineAudioCompletionEvent", "AudioBuffer", "AudioNode", "AudioParam", "AudioScheduledSourceNode", "AnalyserNode", "AudioBufferSourceNode", "AudioDestinationNode", "AudioListener", "AudioProcessingEvent", "BiquadFilterNode", "ChannelMergerNode", "ChannelSplitterNode", "ConstantSourceNode", "ConvolverNode", "DelayNode", "DynamicsCompressorNode", "GainNode", "IIRFilterNode", "MediaElementAudioSourceNode", "MediaStreamAudioDestinationNode", "MediaStreamAudioSourceNode", "MediaStreamTrackAudioSourceNode", "OscillatorNode", "PannerNode", "PeriodicWave", "ScriptProcessorNode", "StereoPannerNode", "WaveShaperNode", "AudioWorklet", "AudioWorkletGlobalScope", "AudioWorkletNode", "AudioWorkletProcessor"]
+        names = filterOut(names, objects);
+    }
+
+    // ServiceWorker
+    // https://wicg.github.io/background-sync/spec/#sync-manager-interface
+    {
+        let objects = ["ServiceWorkerRegistration", "SyncManager", "ServiceWorkerGlobalScope", "SyncEvent", "represents", "ServiceWorkerRegistration", "SyncManager", "ServiceWorkerGlobalScope", "SyncEvent"]
+        names = filterOut(names, objects);
+    }
+
+    // SourceBuffer
+    // https://w3c.github.io/media-source/#sourcebufferlist
+    {
+        let objects = ["MediaSource", "SourceBuffer", "SourceBufferList", "URL", "AudioTrack", "VideoTrack", "TextTrack"]
+        names = filterOut(names, objects);
+    }
+
+    // screen
+    // https://w3c.github.io/screen-orientation/#screenorientation-interface
+    {
+        let objects = ["Screen", "ScreenOrientation"]
+        names = filterOut(names, objects);
+    }
+
+    // svg
+    {
+        let objects = ["SVGUnitTypes", "SVGTransformList", "SVGTransform", "SVGStringList", "SVGRect", "SVGPreserveAspectRatio", "SVGPointList", "SVGPoint", "SVGNumberList", "SVGNumber", "SVGMatrix", "SVGLengthList", "SVGLength", "SVGAnimatedTransformList", "SVGAnimatedString", "SVGAnimatedRect", "SVGAnimatedPreserveAspectRatio", "SVGAnimatedNumberList", "SVGAnimatedNumber", "SVGAnimatedLengthList", "SVGAnimatedLength", "SVGAnimatedInteger", "SVGAnimatedEnumeration", "SVGAnimatedBoolean", "SVGAnimatedAngle", "SVGAngle"]
+        names = filterOut(names, objects);
+    }
+    // canvas
+    {
+        let objects = ["CanvasRenderingContext2D", "CanvasCaptureMediaStreamTrack"]
+        names = filterOut(names, objects);
+    }
+
+    // Geometry
+    // https://drafts.fxtf.org/geometry/#DOMRect
+    {
+        let objects = ["DOMPointReadOnly", "DOMPoint", "DOMRectReadOnly", "DOMRect", "DOMRectList", "DOMQuad", "DOMMatrixReadOnly", "DOMMatrix"]
+        names = filterOut(names, objects);
+    }
+
+    // navigation-timing
+    // https://www.w3.org/TR/navigation-timing/#sec-navigation-timing-interface
+    {
+        let objects = ["PerformanceTiming", "PerformanceServerTiming", "PerformanceResourceTiming", "PerformancePaintTiming", "PerformanceObserverEntryList", "PerformanceObserver", "PerformanceNavigationTiming", "PerformanceMeasure", "PerformanceMark", "PerformanceLongTaskTiming", "PerformanceEventTiming", "PerformanceEntry", "PerformanceElementTiming", "Performance", "PerformanceNavigation"]
+        names = filterOut(names, objects);
+    }
+
+    // media
+    // https://w3c.github.io/mediacapture-main/#dom-mediastreamtrackevent
+    {
+        let objects = ["MediaStreamTrackEvent", "MediaStreamTrack", "MediaStreamEvent", "MediaStream", "MediaSettingsRange", "MediaRecorder", "MediaEncryptedEvent", "MediaCapabilities", "MediaQueryListEvent", "MediaQueryList", "MediaList", "MediaMetadata", "MediaSession", "MediaDeviceInfo", "MediaDevices", "MediaKeyMessageEvent", "MediaKeys", "MediaKeySession", "MediaKeyStatusMap", "MediaKeySystemAccess"]
+        names = filterOut(names, objects);
+    }
+
+    // css
+    // https://drafts.css-houdini.org/css-typed-om-1/#dom-cssvariablereferencevalue-cssvariablereferencevalue
+    {
+        let objects = ["CSSVariableReferenceValue", "CSSUnparsedValue", "CSSUnitValue", "CSSTranslate", "CSSTransformValue", "CSSTransformComponent", "CSSSupportsRule", "CSSStyleValue", "CSSStyleSheet", "CSSStyleRule", "CSSStyleDeclaration", "CSSSkewY", "CSSSkewX", "CSSSkew", "CSSScale", "CSSRuleList", "CSSRule", "CSSRotate", "CSSPositionValue", "CSSPerspective", "CSSPageRule", "CSSNumericValue", "CSSNumericArray", "CSSNamespaceRule", "CSSMediaRule", "CSSMatrixComponent", "CSSMathValue", "CSSMathSum", "CSSMathProduct", "CSSMathNegate", "CSSMathMin", "CSSMathMax", "CSSMathInvert", "CSSKeywordValue", "CSSKeyframesRule", "CSSKeyframeRule", "CSSImportRule", "CSSImageValue", "CSSGroupingRule", "CSSFontFaceRule", "CSS", "CSSConditionRule"]
+        names = filterOut(names, objects);
+    }
+
+    // file
+    // https://w3c.github.io/FileAPI/
+    {
+        let objects = ["FileReader","FileReaderSync","Blob", "FileList", "File"]
+        names = filterOut(names, objects);
+    }
+
+    // Bluetooth
+    // https://webbluetoothcg.github.io/web-bluetooth/#bluetooth
+    {
+        let objects = ["BluetoothUUID", "Bluetooth", "BluetoothCharacteristicProperties", "BluetoothDevice", "BluetoothRemoteGATTCharacteristic", "BluetoothRemoteGATTDescriptor", "BluetoothRemoteGATTServer", "BluetoothRemoteGATTService"]
+        names = filterOut(names, objects);
+    }
+
+    // MIDI
+    // https://webaudio.github.io/web-midi-api/#midiaccess-interface
+    {
+        let objects = ["MIDIAccess", "MIDIConnectionEvent", "MIDIInput", "MIDIInputMap", "MIDIMessageEvent", "MIDIOutput", "MIDIOutputMap", "MIDIPort"]
+        names = filterOut(names, objects);
+    }
+
+    // USB
+    // https://wicg.github.io/webusb/#enumeration
+    {
+        let objects = ["USB", "USBAlternateInterface", "USBConfiguration", "USBConnectionEvent", "USBDevice", "USBEndpoint", "USBInterface", "USBInTransferResult", "USBIsochronousInTransferPacket", "USBIsochronousInTransferResult", "USBIsochronousOutTransferPacket", "USBIsochronousOutTransferResult", "USBOutTransferResult"]
+        names = filterOut(names, objects);
+    }
+
+    // IDB
+    // https://www.w3.org/TR/IndexedDB/#idbversionchangeevent
+    {
+        let objects = ["IDBVersionChangeEvent", "IDBTransaction", "IDBRequest", "IDBOpenDBRequest", "IDBObjectStore", "IDBKeyRange", "IDBIndex", "IDBFactory", "IDBDatabase", "IDBCursorWithValue", "IDBCursor"]
+        names = filterOut(names, objects);
+    }
+
+    // Trusted
+    {
+        let objects = ["TrustedHTML", "TrustedScript", "TrustedScriptURL", "TrustedTypePolicy", "TrustedTypePolicyFactory"]
+        names = filterOut(names, objects);
+    }
      
     console.log(names);
      
