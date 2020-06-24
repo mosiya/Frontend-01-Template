@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>寻路问题（搜索）——广度优先</title>
+    <style>
+        .cell {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background-color: lightskyblue;
+            vertical-align: middle;
+            margin-right: 1px;
+            margin-bottom: 1px;
+        }
+        #container {
+            width: 701px;
+            line-height: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    <button onclick="localStorage.map = JSON.stringify(map)">save</button>
+    <button onclick="findPath(map, [0,0], [50,50])">findPath</button>
+    <button onclick="location.reload()">reload</button>
+    <button onclick="delete localStorage.map; location.reload()">reset</button>
+    <script>
+        var map = localStorage.map ? JSON.parse(localStorage.map) : new Array(100*100).fill(0);
+        let container = document.getElementById('container');
+        for(let y = 0; y < 100; y++) {
+            for(let x = 0; x < 100; x++) {
+                let cell = document.createElement('div');
+                cell.classList.add('cell')
+                container.appendChild(cell);
+                map[y * 100 + x] === 1 && (cell.style.backgroundColor = 'white')
+
+                cell.addEventListener('mouseover', e => {
+                    if(mouse) {
+                        if(clear) {
+                            e.target.style.backgroundColor = '';
+                            map[y * 100 + x] = 0
+                        } else {
+                            e.target.style.backgroundColor = 'white';
+                            map[y * 100 + x] = 1
+                        }
+                    }
+                })
+            }
+        }
+
+        var mouse = false;
+        var clear = false;
+        document.addEventListener('mousedown', e => {
+            mouse = true;
+            clear = (e.which === 3)
+        })
+        document.addEventListener('mouseup', () => mouse = false)
+        document.addEventListener('contextmenu', e => e.preventDefault())
+
+        let sleep = (t) => new Promise(resolve => setTimeout(resolve, t))
+
+        async function findPath(map, start, end) {
+            map = map.slice();
+            let queue = [start];
+            
+            async function insert([x, y]) {
+                if(map[100 * y + x] !== 0) return;
+                if(x < 0 || y < 0 || x >= 100 || y >= 100) return;
+
+                map[100 * y + x] = 2;
+                container.children[y * 100 + x].style.backgroundColor = 'pink';
+                await sleep(5);
+
+                queue.push([x, y]);
+            }
+
+            while(queue.length) {
+                let [x, y] = queue.shift(); // pop unshift/push shift
+                if(x === end[0] && y === end[1]) return true;// 牺牲一点性能
+                await insert([x - 1, y]);
+                await insert([x + 1, y]);
+                await insert([x, y - 1]);
+                await insert([x, y + 1]);
+            }
+            return false;
+        }
+    </script>
+</body>
+</html>
