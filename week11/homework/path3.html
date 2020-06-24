@@ -23,10 +23,14 @@
 <body>
     <div id="container"></div>
     <button onclick="localStorage.map = JSON.stringify(map)">save</button>
+    <button onclick="localStorage.wannaSnoopy = true; location.reload()">SnoopyMap</button>
     <button onclick="findPath(map, [0,0], [50,50])">findPath</button>
     <button onclick="location.reload()">reload</button>
-    <button onclick="delete localStorage.map; location.reload()">reset</button>
+    <button onclick="delete localStorage.map; delete localStorage.wannaSnoopy; location.reload()">reset</button>
+    <script src="./Snoopy.js"></script>
     <script>
+        var wannaSnoopy = localStorage.wannaSnoopy;
+
         class Sorted {
             constructor(data, compare) {
                 this.data = data;
@@ -55,7 +59,9 @@
         }
 
 
-        var map = localStorage.map ? JSON.parse(localStorage.map) : new Array(100*100).fill(0);
+        var map = wannaSnoopy ? snoopyMap : 
+                  localStorage.map ? JSON.parse(localStorage.map) :
+                  new Array(100*100).fill(0);
         let container = document.getElementById('container');
         for(let y = 0; y < 100; y++) {
             for(let x = 0; x < 100; x++) {
