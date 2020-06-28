@@ -33,6 +33,7 @@
         <div class="container">
             <div id="patternIndex" class="wrap"></div>
             <div id="pattern" class="wrap"></div>
+            <div id="patternArray" class="wrap"></div>
         </div>
         <div style="margin-top: 50px;">
             <label for="source">source: </label>
@@ -48,6 +49,7 @@
 
         var patternIndex = document.getElementById('patternIndex');
         var patternDiv = document.getElementById('pattern');
+        var patternArray = document.getElementById('patternArray');
 
         var sourceInputValue = '';
         var patternInputValue = '';
@@ -55,8 +57,6 @@
         function reset() {
             var sourceInputValue = '';
             var patternInputValue = '';
-            // genSource('abcabcabx');
-            // genPattern('abcabx');
             changeColor(sourceDiv);
             changeColor(patternDiv);
         }
@@ -69,6 +69,7 @@
 
             patternIndex.innerText = '';
             patternDiv.innerText = '';
+            patternArray.innerText = '';
 
             for(let i = 0; i < value.length; i++) {
                 let span = document.createElement('span');
@@ -89,14 +90,22 @@
                 if(i === 0) {
                     span4.innerText = 'j'
                 }
+
+                let span5 = document.createElement('span');
+                patternArray.appendChild(span5);
             }
         }
 
         function genPattern(value) {
             patternInputValue = value;
             let spans = patternDiv.querySelectorAll('span');
-            for(let i = 0; i < spans.length; i++) {
-                spans[i].innerText = value[i] || '';
+            for(let i = 0; i < value.length; i++) {
+                spans[i].innerText = value[i];
+            }
+
+            let spans2 = patternArray.querySelectorAll('span');
+            for(let i = 0; i < value.length; i++) {
+                spans2[i].innerText = 0;
             }
         }
 
@@ -110,11 +119,11 @@
                 spans[i].innerText = '';
             }
             index = j - index;
-            for(let i = index; i < spans.length; i++) {
+            for(let i = index; i < value.length + index; i++) {
                 if(i > j) {
                     await sleep(1000);
                 }
-                spans[i].innerText = value[i  - index] || '';
+                spans[i].innerText = value[i  - index];
             }
         }
 
