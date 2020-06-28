@@ -111,18 +111,13 @@
 
         let sleep = (t) => new Promise(resolve => setTimeout(resolve, t))
 
-        async function patternGo(value, j, index) {
-            // console.log(arguments)
+        function patternGo(value, i, j) {
             let spans = patternDiv.querySelectorAll('span');
-            await sleep(300);
             for(let i = 0; i < spans.length; i++) {
                 spans[i].innerText = '';
             }
-            index = j - index;
+            let index = i - j;
             for(let i = index; i < value.length + index; i++) {
-                if(i > j) {
-                    await sleep(1000);
-                }
                 spans[i].innerText = value[i  - index];
             }
         }
@@ -166,54 +161,34 @@
 
             let j = 0;
             for(let i = 0; i < source.length; i++) {
+                if((i - j + pattern.length) > source.length) {
+                    console.log(false);
+                    return false;
+                }
+                changeIndex(sourceIndex, 'i', i);
+                changeIndex(patternIndex, 'j', i);
+                await sleep(300);
+                patternGo(pattern, i, j);
+                await sleep(300);
                 if(source[i] === pattern[j]) {
-                    await sleep(300);
-                    changeIndex(sourceIndex, 'i', i);
-                    changeIndex(patternIndex, 'j', i);
-                    await sleep(300);
                     changeColor(sourceDiv, 'lightgreen', i);
                     changeColor(patternDiv, 'lightgreen', i);
                     await sleep(300);
                     j ++;
                 } else {
-                    await sleep(300);
-                    changeIndex(sourceIndex, 'i', i);
-                    changeIndex(patternIndex, 'j', i);
-                    await sleep(300);
                     changeColor(sourceDiv, 'red', i);
                     changeColor(patternDiv, 'red', i);
                     await sleep(300);
-                    while(source[i] !== pattern[j] && j > 0) {
-                        changeColor(sourceDiv);
-                        changeColor(patternDiv);
-                        // await sleep(300);
-                        await patternGo(pattern, i, table[j - 1]);
-                        await sleep(300);
-                        changeColor(sourceDiv);
-                        changeColor(patternDiv);
+                    while(j > 0) {
                         j = table[j - 1];
+                        if(source[i] === pattern[j]) {
+                            j++;
+                            break;
+                        }
                     }
-                    if(source[i] === pattern[j]) {
-                        changeColor(sourceDiv);
-                        changeColor(patternDiv);
-                        await sleep(300);
-                        changeColor(sourceDiv, 'lightgreen', i);
-                        changeColor(patternDiv, 'lightgreen', i);
-                        await sleep(300);
-                        j++
-                    } else {
-                        changeColor(sourceDiv);
-                        changeColor(patternDiv);
-                        // await sleep(300);
-                        await patternGo(pattern, i, table[j - 1]);
-                        await sleep(300);
-                        changeColor(sourceDiv);
-                        changeColor(patternDiv);
-                        j = 0;
-                        // changeColor(sourceDiv);
-                        // changeColor(patternDiv);
-                        await sleep(300);
-                    }
+                    changeColor(sourceDiv);
+                    changeColor(patternDiv);
+                    await sleep(300);
                 }
                 if(j === pattern.length) {
                     console.log(true)
@@ -224,7 +199,7 @@
             return false;
         }
         genSource('abcabcabx');
-        genPattern('abcabx');
+        genPattern('bcabx');
     </script>
 </body>
 </html>

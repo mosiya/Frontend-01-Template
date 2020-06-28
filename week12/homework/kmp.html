@@ -8,6 +8,7 @@
 <body>
     <script>
         function find(source, pattern) {
+            if(source === '' && pattern === '') return true;
             let table = new Array(pattern.length).fill(0);
 
             let k = 0;
@@ -26,13 +27,12 @@
                 if(source[i] === pattern[j]) {
                     j ++;
                 } else {
-                    while(source[i] !== source[j] && j > 0) {
+                    while(j > 0) {
                         j = table[j - 1];
-                    }
-                    if(source[i] === source[j]) {
-                        j++
-                    } else {
-                        j = 0;
+                        if(source[i] === pattern[j]) {
+                            j++;
+                            break;
+                        }
                     }
                 }
                 if(j === pattern.length) {
