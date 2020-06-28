@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KMP_vision</title>
+    <style>
+        .wrap {
+            height: 50PX;
+            /* border: 1px solid lightblue; */
+            /* padding: 10px; */
+            /* margin: 10px; */
+            display: flex;
+        }
+        .wrap span {
+            flex: 1;
+            margin: 5px;
+            background-color: lightcyan;
+            text-align: center;
+            padding: 10px;
+        }
+        #sourceIndex span, #patternIndex span {
+            background-color: transparent;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div class="container">
+            <div id="sourceIndex" class="wrap"></div>
+            <div id="source" class="wrap"></div>
+        </div>
+        <div class="container">
+            <div id="patternIndex" class="wrap"></div>
+            <div id="pattern" class="wrap"></div>
+        </div>
+        <div style="margin-top: 50px;">
+            <label for="source">source: </label>
+            <input type="text" name="source" id="sourceInput" value="abcabcabx" oninput="genSource(this.value)">
+            <label for="pattern">pattern: </label>
+            <input type="text" name="pattern" id="patternInput" value="abcabx" oninput="genPattern(this.value)">
+            <button onclick="reset();find()">kmp find</button>
+        </div>
+    </div>
+    <script>
+        var sourceIndex = document.getElementById('sourceIndex');
+        var sourceDiv = document.getElementById('source');
+
+        var patternIndex = document.getElementById('patternIndex');
+        var patternDiv = document.getElementById('pattern');
+
+        var sourceInputValue = '';
+        var patternInputValue = '';
+
+        function reset() {
+            var sourceInputValue = '';
+            var patternInputValue = '';
+            // genSource('abcabcabx');
+            // genPattern('abcabx');
+            changeColor(sourceDiv);
+            changeColor(patternDiv);
+        }
+
+        function genSource(value) {
+            sourceInputValue = value;
+
+            sourceIndex.innerText = '';
+            sourceDiv.innerText = '';
+
+            patternIndex.innerText = '';
+            patternDiv.innerText = '';
+
+            for(let i = 0; i < value.length; i++) {
+                let span = document.createElement('span');
+                span.innerText = value[i];
+                sourceDiv.appendChild(span);
+
+                let span2 = document.createElement('span');
+                patternDiv.appendChild(span2);
+                
+                let span3 = document.createElement('span');
+                sourceIndex.appendChild(span3);
+                if(i === 0) {
+                    span3.innerText = 'i'
+                }
+
+                let span4 = document.createElement('span');
+                patternIndex.appendChild(span4);
+                if(i === 0) {
+                    span4.innerText = 'j'
+                }
+            }
+        }
+
+        function genPattern(value) {
+            patternInputValue = value;
+            let spans = patternDiv.querySelectorAll('span');
+            for(let i = 0; i < spans.length; i++) {
+                spans[i].innerText = value[i] || '';
+            }
+        }
+
+        let sleep = (t) => new Promise(resolve => setTimeout(resolve, t))
+
+        async function patternGo(value, j, index) {
+            // console.log(arguments)
+            let spans = patternDiv.querySelectorAll('span');
+            await sleep(300);
+            for(let i = 0; i < spans.length; i++) {
+                spans[i].innerText = '';
+            }
+            index = j - index;
+            for(let i = index; i < spans.length; i++) {
+                if(i > j) {
+                    await sleep(1000);
+                }
+                spans[i].innerText = value[i  - index] || '';
+            }
+        }
+
+        function changeColor(wrap, color, index) {
+            let spans = wrap.querySelectorAll('span');
+            if(typeof index !== 'undefined') {
+                spans[index].style.backgroundColor = color;
+            } else {
+                for(let span of spans) {
+                    span.style.backgroundColor = ''
+                }
+            }
+        }
+
+        function changeIndex(wrap, item, index) {
+            let spans = wrap.querySelectorAll('span');
+            for(let i = 0; i < spans.length; i++) {
+                spans[i].innerText = '';
+            }
+            spans[index].innerText = item;
+        }
+
+
+        async function find(source, pattern) {
+            source = sourceInputValue;
+            pattern = patternInputValue;
+
+            let table = new Array(pattern.length).fill(0);
+
+            let k = 0;
+
+            for(let j = 1; j < pattern.length; j++) {
+                if(pattern[j] === pattern[k]) {
+                    k++;
+                } else {
+                    k = 0;
+                }
+                table[j] = k;
+            }
+
+            let j = 0;
+            for(let i = 0; i < source.length; i++) {
+                if(source[i] === pattern[j]) {
+                    await sleep(300);
+                    changeIndex(sourceIndex, 'i', i);
+                    changeIndex(patternIndex, 'j', i);
+                    await sleep(300);
+                    changeColor(sourceDiv, 'lightgreen', i);
+                    changeColor(patternDiv, 'lightgreen', i);
+                    await sleep(300);
+                    j ++;
+                } else {
+                    await sleep(300);
+                    changeIndex(sourceIndex, 'i', i);
+                    changeIndex(patternIndex, 'j', i);
+                    await sleep(300);
+                    changeColor(sourceDiv, 'red', i);
+                    changeColor(patternDiv, 'red', i);
+                    await sleep(300);
+                    while(source[i] !== pattern[j] && j > 0) {
+                        changeColor(sourceDiv);
+                        changeColor(patternDiv);
+                        // await sleep(300);
+                        await patternGo(pattern, i, table[j - 1]);
+                        await sleep(300);
+                        changeColor(sourceDiv);
+                        changeColor(patternDiv);
+                        j = table[j - 1];
+                    }
+                    if(source[i] === pattern[j]) {
+                        changeColor(sourceDiv);
+                        changeColor(patternDiv);
+                        await sleep(300);
+                        changeColor(sourceDiv, 'lightgreen', i);
+                        changeColor(patternDiv, 'lightgreen', i);
+                        await sleep(300);
+                        j++
+                    } else {
+                        changeColor(sourceDiv);
+                        changeColor(patternDiv);
+                        // await sleep(300);
+                        await patternGo(pattern, i, table[j - 1]);
+                        await sleep(300);
+                        changeColor(sourceDiv);
+                        changeColor(patternDiv);
+                        j = 0;
+                        // changeColor(sourceDiv);
+                        // changeColor(patternDiv);
+                        await sleep(300);
+                    }
+                }
+                if(j === pattern.length) {
+                    console.log(true)
+                    return true;
+                }
+            }
+            console.log(false)
+            return false;
+        }
+        genSource('abcabcabx');
+        genPattern('abcabx');
+    </script>
+</body>
+</html>
