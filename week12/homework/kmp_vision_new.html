@@ -13,12 +13,11 @@
             flex: 1;
             margin: 5px;
             border-radius: 10px;
-            background-color: lightcyan;
             text-align: center;
             padding: 10px;
         }
-        .transparent span {
-            background-color: transparent;
+        span.lightcyan {
+            background-color: lightcyan;
         }
         span.lightskyblue {
             background-color: lightskyblue;
@@ -31,20 +30,20 @@
 <body>
     <div>
         <div class="container">
-            <div id="sourceIndex" class="wrap transparent"></div>
+            <div id="sourceIndex" class="wrap"></div>
             <div id="source" class="wrap"></div>
         </div>
         <div class="container">
-            <div id="patternIndex" class="wrap transparent"></div>
-            <div id="pattern" class="wrap transparent"></div>
-            <div id="patternArray" class="wrap transparent"></div>
+            <div id="patternIndex" class="wrap"></div>
+            <div id="pattern" class="wrap"></div>
+            <div id="patternArray" class="wrap"></div>
         </div>
         <div style="margin-top: 50px;">
             <label for="source">source: </label>
             <input type="text" name="source" id="sourceInput" value="abcabcabx" oninput="genSource(this.value)">
             <label for="pattern">pattern: </label>
             <input type="text" name="pattern" id="patternInput" value="abcabx" oninput="genPattern(this.value)">
-            <button onclick="reset();find()" id="findButton">kmp find</button>
+            <button onclick="find()" id="findButton">kmp find</button>
         </div>
     </div>
     <script>
@@ -52,13 +51,17 @@
             constructor(ele) {
                 this.ele = ele;
             }
-
             setChar(char) {
                 this.ele.innerText = char || '';
             }
-
             setColor(color) {
                 this.ele.style.backgroundColor = color || '';
+            }
+            addClass(className) {
+                this.ele.classList.add(className);
+            }
+            removeClass(className) {
+                this.ele.classList.remove(className);
             }
         }
 
@@ -82,7 +85,7 @@
                 this.ele.innerText = ''
             }
 
-            resetStr() {
+            resetStrs() {
                 this.spans.forEach(span => {
                     span.setChar();
                 })
@@ -94,9 +97,10 @@
                 })
             }
 
-            reset() {
-                this.resetStr();
-                this.resetColors();
+            removeClasses(className) {
+                this.spans.forEach(span => {
+                    span.removeClass(className);
+                })
             }
         }
 
@@ -104,24 +108,28 @@
             constructor(ele) {
                 super(ele);
             }
-
             setChar(index, char) {
                 this.spans[index].setChar(char);
             }
-
-            setStr(start, str) {
+            setStrs(start, str) {
                 for(let i = start; i < str.length + start; i++) {
                     this.setChar(i, str[i - start]);
                 }
             }
-
             setColor(index, color) {
                 this.spans[index].setColor(color);
             }
-
             setColors(start, str, color) {
                 for(let i = start; i < str.length + start; i++) {
                     this.setColor(i, color);
+                }
+            }
+            addClass(index, className) {
+                this.spans[index].addClass(className);
+            }
+            addClasses(start, str, className) {
+                for(let i = start; i < str.length + start; i++) {
+                    this.addClass(i, className);
                 }
             }
         }
@@ -141,75 +149,102 @@
 
         var isRunning = false;
 
-        function reset() {
-            var sourceInputValue = '';
-            var patternInputValue = '';
-            sourceDiv.resetColors();
-            patternDiv.resetColors()
-        }
-
         function genSource(value) {
             if(isRunning) return;
 
             sourceInputValue = value;
-
+            // all clear
             sourceIndex.clear();
             sourceDiv.clear();
-
             patternIndex.clear();
             patternDiv.clear();
             patternArray.clear();
-
+            // init sourceDiv
             sourceDiv.init(value);
-            sourceDiv.setStr(0, value);
-            sourceDiv.setColors(0, value, 'lightcyan');
-
-            patternDiv.init(value);
-
+            sourceDiv.setStrs(0, value);
+            sourceDiv.addClasses(0, value, 'lightcyan');
+            // init sourceIndex
             sourceIndex.init(value);
             sourceIndex.setChar(0, 'i');
-
+            // init patternDiv
+            patternDiv.init(value);
+            // init patternIndex
             patternIndex.init(value);
             patternIndex.setChar(0, 'j');
+            // init patternArray
             patternArray.init(value);
+            if(patternInputValue.length < value.length) {
+                // set patternDiv
+                patternDiv.setStrs(0, patternInputValue);
+                patternDiv.addClasses(0, patternInputValue, 'lightskyblue');
+                // set patternArray
+                patternArray.setStrs(0, patternInputValue.replace(/./g, '0'));
+                patternArray.addClasses(0, patternInputValue, 'lightblue');
+            }
         }
 
         function genPattern(value) {
             if(isRunning) return;
-            sourceIndex.resetStr();
+            // reset sourceIndex
+            sourceIndex.resetStrs();
             sourceIndex.setChar(0, 'j');
-
-            patternIndex.resetStr();
+            // reset patternIndex
+            patternIndex.resetStrs();
             patternIndex.setChar(0, 'j');
 
             patternInputValue = value;
-
-            patternDiv.reset();
-            patternDiv.setColors(0, value, 'lightskyblue');
-            patternDiv.setStr(0, value);
-
+            // reset patternDiv
+            patternDiv.resetStrs();
+            patternDiv.resetColors();
+            patternDiv.removeClasses('lightskyblue');
+            // set patternDiv
+            patternDiv.setStrs(0, value);
+            patternDiv.addClasses(0, value, 'lightskyblue');
+            // reset sourceDiv colors
             sourceDiv.resetColors();
-
-            patternArray.reset();
-            patternArray.setColors(0, value, 'lightblue');
+            // reset patternArray
+            patternArray.resetStrs();
+            patternArray.resetColors();
+            patternArray.removeClasses('lightblue');
+            // set patternArray
+            patternArray.setStrs(0, value.replace(/./g, '0'));
+            patternArray.addClasses(0, value, 'lightblue');
         }
 
         let sleep = (t) => new Promise(resolve => setTimeout(resolve, t))
 
-        function patternGo(value, i, j) {
-            patternDiv.reset();
-            patternDiv.setStr(i - j, value)
-        }
-
-        async function find(source, pattern) {
-            if(isRunning) return;
+        function strGo(ele, value, start, className) {
+            // reset patternDiv
+            ele.resetStrs();
+            ele.removeClasses(className);
+            // set patternDiv
+            ele.setStrs(start, value);
+            ele.addClasses(start, value, className);
+        } 
+        function running() {
             isRunning = true;
             patternInput.disabled = true;
             sourceInput.disabled = true;
             findButton.disabled = true;
+        }
+
+        function resetRunning() {
+            isRunning = false;
+            patternInput.disabled = '';
+            sourceInput.disabled = '';
+            findButton.disabled = '';
+        }
+
+        function* find(source, pattern) {
+            if(isRunning) return;
+            running();
 
             source = sourceInputValue;
             pattern = patternInputValue;
+
+            if(source.length < pattern.length) {
+                
+            }
 
             let table = new Array(pattern.length).fill(0);
 
@@ -221,39 +256,51 @@
                 } else {
                     k = 0;
                 }
+                // yield;
+                // await sleep(300);
+                patternArray.setChar(j, (k).toString());
+                // await sleep(300);
                 table[j] = k;
             }
 
             let j = 0;
             for(let i = 0; i < source.length; i++) {
                 if((i - j + pattern.length) > source.length) {
-                    isRunning = false;
-                    patternInput.disabled = '';
-                    sourceInput.disabled = '';
-                    findButton.disabled = '';
+                    resetRunning();
                     console.log(false);
                     return false;
                 }
-                sourceIndex.resetStr();
+                // yield;
+                // await sleep(300);
+                // index go
+                sourceIndex.resetStrs();
                 sourceIndex.setChar(i, 'i');
 
-                patternIndex.resetStr();
+                patternIndex.resetStrs();
                 patternIndex.setChar(i, 'j');
-
-                await sleep(300);
-                patternGo(pattern, i, j);
-                await sleep(300);
+                yield;
+                // yield await sleep(300);
+                strGo(patternDiv, pattern, i - j, 'lightskyblue');
+                strGo(patternArray, table.join(''), i - j, 'lightblue');
+                // yield;
+                // await sleep(300);
                 if(source[i] === pattern[j]) {
                     sourceDiv.setColor(i, 'lightgreen');
                     patternDiv.setColor(i, 'lightgreen');
-                    await sleep(300);
+                    yield;
+                    // await sleep(300);
                     j ++;
                 } else {
                     sourceDiv.setColor(i, 'red');
                     patternDiv.setColor(i, 'red');
-                    await sleep(300);
+                    yield;
+                    // await sleep(300);
                     while(j > 0) {
                         j = table[j - 1];
+                        strGo(patternDiv, pattern, i - j, 'lightskyblue');
+                        strGo(patternArray, table.join(''), i - j, 'lightblue');
+                        yield;
+                        // await sleep(300);
                         if(source[i] === pattern[j]) {
                             j++;
                             break;
@@ -261,21 +308,16 @@
                     }
                     sourceDiv.resetColors();
                     patternDiv.resetColors();
-                    await sleep(300);
+                    yield;
+                    // await sleep(300);
                 }
                 if(j === pattern.length) {
-                    isRunning = false;
-                    patternInput.disabled = '';
-                    sourceInput.disabled = '';
-                    findButton.disabled = '';
+                    resetRunning();
                     console.log(true)
                     return true;
                 }
             }
-            isRunning = false;
-            patternInput.disabled = '';
-            sourceInput.disabled = '';
-            findButton.disabled = '';
+            resetRunning();
             console.log(false)
             return false;
         }
