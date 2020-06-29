@@ -48,6 +48,79 @@
         </div>
     </div>
     <script>
+        class Span {
+            constructor(ele) {
+                this.ele = ele;
+            }
+
+            setChar(char) {
+                this.ele.innerText = char || '';
+            }
+
+            setColor(color) {
+                this.ele.style.backgroundColor = color || '';
+            }
+        }
+
+        class Container {
+            constructor(ele) {
+                this.ele = ele;
+                this.spans = [];
+            }
+
+            init(str) {
+                new Array(str.length).fill(0).forEach(_ => {
+                    let span = document.createElement('span');
+                    this.ele.appendChild(span);
+                    span = new Span(span);
+                    this.spans.push(span);
+                })
+            }
+
+            clear() {
+                this.spans.length = 0;
+                this.ele.innerText = ''
+            }
+
+            resetStr() {
+                this.spans.forEach(span => {
+                    span.setChar();
+                })
+            }
+
+            resetColors() {
+                this.spans.forEach(span => {
+                    span.setColor();
+                })
+            }
+
+        }
+
+        class StrContainer extends Container {
+            constructor(ele) {
+                super(ele);
+            }
+
+            setChar(index, char) {
+                this.spans[index].setChar(char);
+            }
+
+            setStr(start, str) {
+                for(let i = start; i < str.length + start; i++) {
+                    this.setChar(i, str[i - start]);
+                }
+            }
+
+            setColor(index, color) {
+                this.spans[index].setColor(color);
+            }
+
+            setColors(start, str) {
+                for(let i = start; i < str.length + start; i++) {
+                    this.setColor(i, str[i - start]);
+                }
+            }
+        }
         var sourceIndex = document.getElementById('sourceIndex');
         var sourceDiv = document.getElementById('source');
 
