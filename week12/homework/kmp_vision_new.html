@@ -94,6 +94,10 @@
                 })
             }
 
+            reset() {
+                this.resetStr();
+                this.resetColors();
+            }
         }
 
         class StrContainer extends Container {
@@ -115,18 +119,18 @@
                 this.spans[index].setColor(color);
             }
 
-            setColors(start, str) {
+            setColors(start, str, color) {
                 for(let i = start; i < str.length + start; i++) {
-                    this.setColor(i, str[i - start]);
+                    this.setColor(i, color);
                 }
             }
         }
-        var sourceIndex = document.getElementById('sourceIndex');
-        var sourceDiv = document.getElementById('source');
+        var sourceIndex = new StrContainer(document.getElementById('sourceIndex'));
+        var sourceDiv = new StrContainer(document.getElementById('source'));
 
-        var patternIndex = document.getElementById('patternIndex');
-        var patternDiv = document.getElementById('pattern');
-        var patternArray = document.getElementById('patternArray');
+        var patternIndex = new StrContainer(document.getElementById('patternIndex'));
+        var patternDiv = new StrContainer(document.getElementById('pattern'));
+        var patternArray = new StrContainer(document.getElementById('patternArray'));
         
         var sourceInput = document.getElementById('sourceInput');
         var patternInput = document.getElementById('patternInput');
@@ -140,108 +144,62 @@
         function reset() {
             var sourceInputValue = '';
             var patternInputValue = '';
-            changeColor(sourceDiv);
-            changeColor(patternDiv);
+            sourceDiv.resetColors();
+            patternDiv.resetColors()
         }
 
         function genSource(value) {
             if(isRunning) return;
+
             sourceInputValue = value;
 
-            sourceIndex.innerText = '';
-            sourceDiv.innerText = '';
+            sourceIndex.clear();
+            sourceDiv.clear();
 
-            patternIndex.innerText = '';
-            patternDiv.innerText = '';
-            patternArray.innerText = '';
+            patternIndex.clear();
+            patternDiv.clear();
+            patternArray.clear();
 
-            for(let i = 0; i < value.length; i++) {
-                let span = document.createElement('span');
-                span.innerText = value[i];
-                sourceDiv.appendChild(span);
+            sourceDiv.init(value);
+            sourceDiv.setStr(0, value);
+            sourceDiv.setColors(0, value, 'lightcyan');
 
-                let span2 = document.createElement('span');
-                patternDiv.appendChild(span2);
-                
-                let span3 = document.createElement('span');
-                sourceIndex.appendChild(span3);
-                if(i === 0) {
-                    span3.innerText = 'i'
-                }
+            patternDiv.init(value);
 
-                let span4 = document.createElement('span');
-                patternIndex.appendChild(span4);
-                if(i === 0) {
-                    span4.innerText = 'j'
-                }
+            sourceIndex.init(value);
+            sourceIndex.setChar(0, 'i');
 
-                let span5 = document.createElement('span');
-                patternArray.appendChild(span5);
-            }
+            patternIndex.init(value);
+            patternIndex.setChar(0, 'j');
+            patternArray.init(value);
         }
 
         function genPattern(value) {
             if(isRunning) return;
-            changeIndex(sourceIndex, 'i', 0);
-            changeIndex(patternIndex, 'j', 0);
-            patternInputValue = value;
-            let spans = patternDiv.querySelectorAll('span');
-            for(let i = 0; i < spans.length; i++) {
-                spans[i].classList.remove('lightskyblue');
-                spans[i].innerText = '';
-            }
-            changeColor(patternDiv);
-            changeColor(sourceDiv);
-            for(let i = 0; i < value.length; i++) {
-                spans[i].classList.add('lightskyblue');
-                spans[i].innerText = value[i];
-            }
+            sourceIndex.resetStr();
+            sourceIndex.setChar(0, 'j');
 
-            let spans2 = patternArray.querySelectorAll('span');
-            for(let i = 0; i < spans2.length; i++) {
-                spans2[i].classList.remove('lightblue');
-                spans2[i].innerText = '';
-            }
-            for(let i = 0; i < value.length; i++) {
-                spans2[i].classList.add('lightblue');
-                spans2[i].innerText = 0;
-            }
+            patternIndex.resetStr();
+            patternIndex.setChar(0, 'j');
+
+            patternInputValue = value;
+
+            patternDiv.reset();
+            patternDiv.setColors(0, value, 'lightskyblue');
+            patternDiv.setStr(0, value);
+
+            sourceDiv.resetColors();
+
+            patternArray.reset();
+            patternArray.setColors(0, value, 'lightblue');
         }
 
         let sleep = (t) => new Promise(resolve => setTimeout(resolve, t))
 
         function patternGo(value, i, j) {
-            let spans = patternDiv.querySelectorAll('span');
-            for(let i = 0; i < spans.length; i++) {
-                spans[i].classList.remove('lightskyblue');
-                spans[i].innerText = '';
-            }
-            let index = i - j;
-            for(let i = index; i < value.length + index; i++) {
-                spans[i].classList.add('lightskyblue');
-                spans[i].innerText = value[i  - index];
-            }
+            patternDiv.reset();
+            patternDiv.setStr(i - j, value)
         }
-
-        function changeColor(wrap, color, index) {
-            let spans = wrap.querySelectorAll('span');
-            if(typeof index !== 'undefined') {
-                spans[index].style.backgroundColor = color;
-            } else {
-                for(let span of spans) {
-                    span.style.backgroundColor = ''
-                }
-            }
-        }
-
-        function changeIndex(wrap, item, index) {
-            let spans = wrap.querySelectorAll('span');
-            for(let i = 0; i < spans.length; i++) {
-                spans[i].innerText = '';
-            }
-            spans[index].innerText = item;
-        }
-
 
         async function find(source, pattern) {
             if(isRunning) return;
@@ -276,19 +234,23 @@
                     console.log(false);
                     return false;
                 }
-                changeIndex(sourceIndex, 'i', i);
-                changeIndex(patternIndex, 'j', i);
+                sourceIndex.resetStr();
+                sourceIndex.setChar(i, 'i');
+
+                patternIndex.resetStr();
+                patternIndex.setChar(i, 'j');
+
                 await sleep(300);
                 patternGo(pattern, i, j);
                 await sleep(300);
                 if(source[i] === pattern[j]) {
-                    changeColor(sourceDiv, 'lightgreen', i);
-                    changeColor(patternDiv, 'lightgreen', i);
+                    sourceDiv.setColor(i, 'lightgreen');
+                    patternDiv.setColor(i, 'lightgreen');
                     await sleep(300);
                     j ++;
                 } else {
-                    changeColor(sourceDiv, 'red', i);
-                    changeColor(patternDiv, 'red', i);
+                    sourceDiv.setColor(i, 'red');
+                    patternDiv.setColor(i, 'red');
                     await sleep(300);
                     while(j > 0) {
                         j = table[j - 1];
@@ -297,8 +259,8 @@
                             break;
                         }
                     }
-                    changeColor(sourceDiv);
-                    changeColor(patternDiv);
+                    sourceDiv.resetColors();
+                    patternDiv.resetColors();
                     await sleep(300);
                 }
                 if(j === pattern.length) {
