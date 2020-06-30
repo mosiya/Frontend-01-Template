@@ -37,14 +37,15 @@
             <div id="patternIndex" class="wrap"></div>
             <div id="pattern" class="wrap"></div>
             <div id="patternArray" class="wrap"></div>
+            <!-- <div id="patternArrayIndex" class="wrap"></div> -->
         </div>
         <div style="margin-top: 50px;">
             <label for="source">source: </label>
             <input type="text" name="source" id="sourceInput" value="abababaaa" oninput="genSource(this.value)">
             <label for="pattern">pattern: </label>
             <input type="text" name="pattern" id="patternInput" value="ababac" oninput="genPattern(this.value)">
-            <button onclick="var it = find()" id="findButton">kmp find</button>
-            <button onclick="it.next()" id="findButton">next</button>
+            <button onclick="it = find(); it.next()" id="startButton">start</button>
+            <button onclick="it.next()" id="nextButton">next</button>
         </div>
     </div>
     <script>
@@ -212,6 +213,8 @@
         var sourceInput = document.getElementById('sourceInput');
         var patternInput = document.getElementById('patternInput');
         var findButton = document.getElementById('findButton');
+        var startButton = document.getElementById('startButton');
+        var nextButton = document.getElementById('nextButton');
 
         var sourceInputValue = '';
         var patternInputValue = '';
@@ -219,16 +222,14 @@
         var isRunning = false;
 
         function genSource(value) {
-            if(isRunning) return;
-
             sourceInputValue = value;
             // all clear
             container.clear();
             // init all
             container.init(value);
             container.setSourceDiv(0, value);
-            container.setSourceIndex(0, 'i');
-            container.setPatternIndex(0, 'j');
+            container.setSourceIndex(0, 'source[0]');
+            container.setPatternIndex(0, 'pattern[0]');
             if(patternInputValue.length < value.length) {
                 container.setPatternDiv(0, patternInputValue);
                 container.setPatternArray(0, patternInputValue.replace(/./g, ' '));
@@ -236,10 +237,9 @@
         }
 
         function genPattern(value) {
-            if(isRunning) return;
             // reset sourceIndex
-            container.resetSourceIndex('i');
-            container.resetPatternIndex('j');
+            container.resetSourceIndex('source[0]');
+            container.resetPatternIndex('pattern[0]');
 
             patternInputValue = value;
             // reset patternDiv
@@ -257,23 +257,23 @@
         let sleep = (t) => new Promise(resolve => setTimeout(resolve, t));
 
         function running() {
-            isRunning = true;
             patternInput.disabled = true;
             sourceInput.disabled = true;
-            findButton.disabled = true;
+            startButton.disabled = true;
+            nextButton.disabled = '';
         }
 
         function resetRunning() {
-            isRunning = false;
             patternInput.disabled = '';
             sourceInput.disabled = '';
-            findButton.disabled = '';
+            startButton.disabled = '';
+            nextButton.disabled = true;
         }
 
         function* find(source, pattern) {
-            if(isRunning) return;
+            genPattern(patternInputValue);
             running();
-
+            yield;
             source = sourceInputValue;
             pattern = patternInputValue;
 
@@ -307,16 +307,13 @@
                     console.log(false);
                     return false;
                 }
-                // yield;
                 // await sleep(300);
-                // index go
-                container.setSourceIndex(i, 'i');
-                container.setPatternIndex(i, 'j');
+                container.setSourceIndex(i, `source[${i}]`);
+                container.setPatternIndex(i, `pattern[${j}]`);
                 yield;
-                // yield await sleep(300);
+                // await sleep(300);
                 container.movePatternDiv(i - j, pattern);
                 container.movePatternArray(i - j, table.join(''));
-                // yield;
                 // await sleep(300);
                 if(source[i] === pattern[j]) {
                     container.compareSourceAndPattern(i, 'lightgreen');
@@ -336,7 +333,8 @@
                         }
                         container.movePatternDiv(i - j, pattern);
                         container.movePatternArray(i - j, table.join(''));
-                        // yield;
+                        container.setPatternIndex(i, `pattern[${j}]`);
+
                         container.resetSourceAndPattern();
                         yield;
                         // await sleep(300);
@@ -361,9 +359,10 @@
             console.log(false)
             return false;
         }
-        var it = find();
+        var it;
         genSource('abababaaa');
         genPattern('ababac');
+        resetRunning();
     </script>
 </body>
 </html>
