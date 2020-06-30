@@ -37,7 +37,7 @@
             <div id="patternIndex" class="wrap"></div>
             <div id="pattern" class="wrap"></div>
             <div id="patternArray" class="wrap"></div>
-            <!-- <div id="patternArrayIndex" class="wrap"></div> -->
+            <div id="patternArrayValue" class="wrap"></div>
         </div>
         <div style="margin-top: 50px;">
             <label for="source">source: </label>
@@ -46,6 +46,7 @@
             <input type="text" name="pattern" id="patternInput" value="ababac" oninput="genPattern(this.value)">
             <button onclick="it = find(); it.next()" id="startButton">start</button>
             <button onclick="it.next()" id="nextButton">next</button>
+            <span id="result" style="margin-left: 20px;"></span>
         </div>
     </div>
     <script>
@@ -126,13 +127,14 @@
             }
         }
         class Container {
-            constructor(sourceIndex, sourceDiv, patternIndex, patternDiv, patternArray) {
+            constructor(sourceIndex, sourceDiv, patternIndex, patternDiv, patternArray, patternArrayValue) {
                 this.sourceIndex = sourceIndex;
                 this.sourceDiv = sourceDiv;
                 this.patternIndex = patternIndex;
                 this.patternDiv = patternDiv;
                 this.patternArray = patternArray;
-                this.container = [sourceIndex, sourceDiv, patternIndex, patternDiv, patternArray];
+                this.patternArrayValue = patternArrayValue;
+                this.container = [sourceIndex, sourceDiv, patternIndex, patternDiv, patternArray, patternArrayValue];
             }
             clear() {
                 this.container.forEach(item => item.clear());
@@ -159,6 +161,10 @@
             setPatternArray(index, value) {
                 this.patternArray.setStrs(index, value);
                 this.patternArray.addClasses(index, value);
+            }
+            setPatternArrayValue(index, value) {
+                this.patternArrayValue.resetStrs();
+                this.patternArrayValue.setChar(index, value);
             }
             resetSourceIndex(value) {
                 this.setSourceIndex(0, value);
@@ -207,14 +213,16 @@
         var patternIndex = new StrContainer(document.getElementById('patternIndex'));
         var patternDiv = new StrContainer(document.getElementById('pattern'), 'lightskyblue');
         var patternArray = new StrContainer(document.getElementById('patternArray'), 'lightblue');
+        var patternArrayValue = new StrContainer(document.getElementById('patternArrayValue'));
 
-        var container = new Container(sourceIndex, sourceDiv, patternIndex, patternDiv, patternArray);
+        var container = new Container(sourceIndex, sourceDiv, patternIndex, patternDiv, patternArray, patternArrayValue);
         
         var sourceInput = document.getElementById('sourceInput');
         var patternInput = document.getElementById('patternInput');
         var findButton = document.getElementById('findButton');
         var startButton = document.getElementById('startButton');
         var nextButton = document.getElementById('nextButton');
+        var result = document.getElementById('result');
 
         var sourceInputValue = '';
         var patternInputValue = '';
@@ -230,6 +238,7 @@
             container.setSourceDiv(0, value);
             container.setSourceIndex(0, 'source[0]');
             container.setPatternIndex(0, 'pattern[0]');
+            container.setPatternArrayValue(0, '0');
             if(patternInputValue.length < value.length) {
                 container.setPatternDiv(0, patternInputValue);
                 container.setPatternArray(0, patternInputValue.replace(/./g, ' '));
@@ -284,36 +293,56 @@
             let table = new Array(pattern.length).fill(0);
 
             let k = 0;
-            container.setPatternArrayChar(0, '0');
-
+            container.setPatternArrayChar(k, '0');
 
             for(let j = 1; j < pattern.length; j++) {
+                yield;
+                container.patternDiv.setColor(k, 'lightgrey');
+                yield;
+                container.patternDiv.setColor(j, 'lightgrey')
+                yield;
                 if(pattern[j] === pattern[k]) {
+                    container.patternDiv.setColor(j, 'lightgreen');
+                    container.patternDiv.setColor(k, 'lightgreen');
                     k++;
+                    yield;
+                    container.patternArrayValue.setChar(j-1, k-1 + '++');
                 } else {
+                    container.patternDiv.setColor(j, 'red');
+                    container.patternDiv.setColor(k, 'red');
                     k = 0;
                 }
                 yield;
                 // await sleep(300);
+                container.patternArrayValue.resetStrs();
+                container.patternArrayValue.setChar(j, k + '');
+                yield;
+
                 container.setPatternArrayChar(j, k + '');
                 // await sleep(300);
                 table[j] = k;
+                yield;
+                container.patternDiv.resetColors();
             }
+
+            container.patternArrayValue.resetStrs();
 
             let j = 0;
             for(let i = 0; i < source.length; i++) {
                 if((i - j + pattern.length) > source.length) {
                     resetRunning();
+                    result.innerText = 'result: 由于移动后的pattern已经超过了剩下的source字符串，故匹配失败';
                     console.log(false);
                     return false;
                 }
                 // await sleep(300);
                 container.setSourceIndex(i, `source[${i}]`);
                 container.setPatternIndex(i, `pattern[${j}]`);
-                yield;
+                // yield;
                 // await sleep(300);
                 container.movePatternDiv(i - j, pattern);
                 container.movePatternArray(i - j, table.join(''));
+                yield;
                 // await sleep(300);
                 if(source[i] === pattern[j]) {
                     container.compareSourceAndPattern(i, 'lightgreen');
@@ -325,15 +354,23 @@
                     yield;
                     // await sleep(300);
                     while(j > 0) {
+                        container.patternArray.setColor(i - 1, 'lightcoral');
+                        yield;
                         j = table[j - 1];
+                        container.setPatternIndex(i, `index=${j}`);
+                        yield;
+                        container.patternArray.resetColors();
+                        container.setPatternIndex(i, `pattern[${j}]`);
                         if(i - j + pattern.length > source.length) {
                             resetRunning();
+                            result.innerText = 'result: 由于移动后的pattern已经超过了剩下的source字符串，故匹配失败';
                             console.log(false);
                             return false;
                         }
+                        container.setPatternIndex(i, `pattern[${j}]`);
+                        yield;
                         container.movePatternDiv(i - j, pattern);
                         container.movePatternArray(i - j, table.join(''));
-                        container.setPatternIndex(i, `pattern[${j}]`);
 
                         container.resetSourceAndPattern();
                         yield;
@@ -343,6 +380,9 @@
                             yield;
                             j++;
                             break;
+                        } else {
+                            container.compareSourceAndPattern(i, 'red');
+                            yield;
                         }
                     }
                     container.resetSourceAndPattern();
@@ -351,17 +391,19 @@
                 }
                 if(j === pattern.length) {
                     resetRunning();
+                    result.innerText = 'result: 匹配成功！';
                     console.log(true)
                     return true;
                 }
             }
             resetRunning();
+            result.innerText = 'result: 匹配失败';
             console.log(false)
             return false;
         }
         var it;
-        genSource('abababaaa');
-        genPattern('ababac');
+        genSource('abcabcabx');
+        genPattern('abb');
         resetRunning();
     </script>
 </body>
