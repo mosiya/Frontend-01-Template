@@ -41,9 +41,10 @@
         </div>
         <div style="margin-top: 50px;">
             <label for="source">source: </label>
-            <input type="text" name="source" id="sourceInput" value="abababaaa" oninput="genSource(this.value)">
+            <input type="text" name="source" id="sourceInput" value="abcabcabxabcabxaa" oninput="genSource(this.value)">
             <label for="pattern">pattern: </label>
-            <input type="text" name="pattern" id="patternInput" value="ababac" oninput="genPattern(this.value)">
+            <input type="text" name="pattern" id="patternInput" value="abcabxaa" oninput="genPattern(this.value)">
+            <button onclick="autoFind()" id="autoButton">auto start</button>
             <button onclick="it = find(); it.next()" id="startButton">start</button>
             <button onclick="it.next()" id="nextButton">next</button>
             <span id="result" style="margin-left: 20px;"></span>
@@ -226,6 +227,7 @@
         var findButton = document.getElementById('findButton');
         var startButton = document.getElementById('startButton');
         var nextButton = document.getElementById('nextButton');
+        var autoButton = document.getElementById('autoButton');
         var result = document.getElementById('result');
 
         var sourceInputValue = '';
@@ -274,7 +276,13 @@
             sourceInput.disabled = true;
             startButton.disabled = true;
             nextButton.disabled = '';
+            autoButton.disabled = true;
             result.innerText = '';
+        }
+
+        function autoRunning() {
+            running();
+            nextButton.disabled = true;
         }
 
         function resetRunning() {
@@ -282,6 +290,7 @@
             sourceInput.disabled = '';
             startButton.disabled = '';
             nextButton.disabled = true;
+            autoButton.disabled = '';
         }
 
         function* find(source, pattern) {
@@ -406,9 +415,21 @@
             }
         }
         var it;
-        genSource('abcabcabx');
-        genPattern('abb');
+        genSource('abcabcabxabcabxaa');
+        genPattern('abcabxaa');
         resetRunning();
+
+        async function autoFind() {
+            var g = find();
+            var res = g.next();
+            autoRunning();
+
+            while(!res.done){
+                console.log(res.value);
+                await sleep(300);
+                res = g.next();
+            }
+        }
     </script>
 </body>
 </html>
