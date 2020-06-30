@@ -40,10 +40,11 @@
         </div>
         <div style="margin-top: 50px;">
             <label for="source">source: </label>
-            <input type="text" name="source" id="sourceInput" value="abcabcabx" oninput="genSource(this.value)">
+            <input type="text" name="source" id="sourceInput" value="abababaaa" oninput="genSource(this.value)">
             <label for="pattern">pattern: </label>
-            <input type="text" name="pattern" id="patternInput" value="abcabx" oninput="genPattern(this.value)">
-            <button onclick="find()" id="findButton">kmp find</button>
+            <input type="text" name="pattern" id="patternInput" value="ababac" oninput="genPattern(this.value)">
+            <button onclick="var it = find()" id="findButton">kmp find</button>
+            <button onclick="it.next()" id="findButton">next</button>
         </div>
     </div>
     <script>
@@ -65,48 +66,38 @@
             }
         }
 
-        class Container {
-            constructor(ele) {
+        class StrContainer {
+            constructor(ele, className) {
                 this.ele = ele;
+                this.className = className || '';
                 this.spans = [];
             }
-
-            init(str) {
-                new Array(str.length).fill(0).forEach(_ => {
+            init(value) {
+                new Array(value.length).fill(0).forEach(_ => {
                     let span = document.createElement('span');
                     this.ele.appendChild(span);
                     span = new Span(span);
                     this.spans.push(span);
                 })
             }
-
             clear() {
                 this.spans.length = 0;
                 this.ele.innerText = ''
             }
-
             resetStrs() {
                 this.spans.forEach(span => {
                     span.setChar();
                 })
             }
-
             resetColors() {
                 this.spans.forEach(span => {
                     span.setColor();
                 })
             }
-
-            removeClasses(className) {
+            removeClasses() {
                 this.spans.forEach(span => {
-                    span.removeClass(className);
+                    span.removeClass(this.className);
                 })
-            }
-        }
-
-        class StrContainer extends Container {
-            constructor(ele) {
-                super(ele);
             }
             setChar(index, char) {
                 this.spans[index].setChar(char);
@@ -124,21 +115,99 @@
                     this.setColor(i, color);
                 }
             }
-            addClass(index, className) {
-                this.spans[index].addClass(className);
+            addClass(index) {
+                this.spans[index].addClass(this.className);
             }
-            addClasses(start, str, className) {
+            addClasses(start, str) {
                 for(let i = start; i < str.length + start; i++) {
-                    this.addClass(i, className);
+                    this.addClass(i, this.className);
                 }
             }
         }
+        class Container {
+            constructor(sourceIndex, sourceDiv, patternIndex, patternDiv, patternArray) {
+                this.sourceIndex = sourceIndex;
+                this.sourceDiv = sourceDiv;
+                this.patternIndex = patternIndex;
+                this.patternDiv = patternDiv;
+                this.patternArray = patternArray;
+                this.container = [sourceIndex, sourceDiv, patternIndex, patternDiv, patternArray];
+            }
+            clear() {
+                this.container.forEach(item => item.clear());
+            }
+            init(value) {
+                this.container.forEach(item => item.init(value))
+            }
+            setSourceDiv(index, value) {
+                this.sourceDiv.setStrs(index, value);
+                this.sourceDiv.addClasses(index, value);
+            }
+            setSourceIndex(index, value) {
+                this.sourceIndex.resetStrs();
+                this.sourceIndex.setChar(index, value);
+            }
+            setPatternDiv(index, value) {
+                this.patternDiv.setStrs(index, value);
+                this.patternDiv.addClasses(index, value);
+            }
+            setPatternIndex(index, value) {
+                this.patternIndex.resetStrs();
+                this.patternIndex.setChar(index, value);
+            }
+            setPatternArray(index, value) {
+                this.patternArray.setStrs(index, value);
+                this.patternArray.addClasses(index, value);
+            }
+            resetSourceIndex(value) {
+                this.setSourceIndex(0, value);
+            }
+            resetPatternIndex(value) {
+                this.setPatternIndex(0, value);
+            }
+            resetPatternDiv() {
+                this.patternDiv.resetStrs();
+                this.patternDiv.resetColors();
+                this.patternDiv.removeClasses();
+            }
+            resetPatternArray() {
+                this.patternArray.resetStrs();
+                this.patternArray.resetColors();
+                this.patternArray.removeClasses();
+            }
+            resetColors(eleStr) {
+                this[eleStr].resetColors();
+            }
+            setPatternArrayChar(index, char) {
+                this.patternArray.setChar(index, char);
+            }
+            movePatternDiv(start, value) {
+                this.patternDiv.resetStrs();
+                this.patternDiv.removeClasses();
+                this.setPatternDiv(start, value);
+            }
+            movePatternArray(start, value) {
+                this.patternArray.resetStrs();
+                this.patternArray.removeClasses();
+                this.setPatternArray(start, value);
+            }
+            compareSourceAndPattern(index, color) {
+                this.sourceDiv.setColor(index, color);
+                this.patternDiv.setColor(index, color);
+            }
+            resetSourceAndPattern() {
+                this.sourceDiv.resetColors();
+                this.patternDiv.resetColors();
+            }
+        }
         var sourceIndex = new StrContainer(document.getElementById('sourceIndex'));
-        var sourceDiv = new StrContainer(document.getElementById('source'));
+        var sourceDiv = new StrContainer(document.getElementById('source'), 'lightcyan');
 
         var patternIndex = new StrContainer(document.getElementById('patternIndex'));
-        var patternDiv = new StrContainer(document.getElementById('pattern'));
-        var patternArray = new StrContainer(document.getElementById('patternArray'));
+        var patternDiv = new StrContainer(document.getElementById('pattern'), 'lightskyblue');
+        var patternArray = new StrContainer(document.getElementById('patternArray'), 'lightblue');
+
+        var container = new Container(sourceIndex, sourceDiv, patternIndex, patternDiv, patternArray);
         
         var sourceInput = document.getElementById('sourceInput');
         var patternInput = document.getElementById('patternInput');
@@ -154,73 +223,39 @@
 
             sourceInputValue = value;
             // all clear
-            sourceIndex.clear();
-            sourceDiv.clear();
-            patternIndex.clear();
-            patternDiv.clear();
-            patternArray.clear();
-            // init sourceDiv
-            sourceDiv.init(value);
-            sourceDiv.setStrs(0, value);
-            sourceDiv.addClasses(0, value, 'lightcyan');
-            // init sourceIndex
-            sourceIndex.init(value);
-            sourceIndex.setChar(0, 'i');
-            // init patternDiv
-            patternDiv.init(value);
-            // init patternIndex
-            patternIndex.init(value);
-            patternIndex.setChar(0, 'j');
-            // init patternArray
-            patternArray.init(value);
+            container.clear();
+            // init all
+            container.init(value);
+            container.setSourceDiv(0, value);
+            container.setSourceIndex(0, 'i');
+            container.setPatternIndex(0, 'j');
             if(patternInputValue.length < value.length) {
-                // set patternDiv
-                patternDiv.setStrs(0, patternInputValue);
-                patternDiv.addClasses(0, patternInputValue, 'lightskyblue');
-                // set patternArray
-                patternArray.setStrs(0, patternInputValue.replace(/./g, '0'));
-                patternArray.addClasses(0, patternInputValue, 'lightblue');
+                container.setPatternDiv(0, patternInputValue);
+                container.setPatternArray(0, patternInputValue.replace(/./g, ' '));
             }
         }
 
         function genPattern(value) {
             if(isRunning) return;
             // reset sourceIndex
-            sourceIndex.resetStrs();
-            sourceIndex.setChar(0, 'j');
-            // reset patternIndex
-            patternIndex.resetStrs();
-            patternIndex.setChar(0, 'j');
+            container.resetSourceIndex('i');
+            container.resetPatternIndex('j');
 
             patternInputValue = value;
             // reset patternDiv
-            patternDiv.resetStrs();
-            patternDiv.resetColors();
-            patternDiv.removeClasses('lightskyblue');
+            container.resetPatternDiv();
             // set patternDiv
-            patternDiv.setStrs(0, value);
-            patternDiv.addClasses(0, value, 'lightskyblue');
+            container.setPatternDiv(0, value);
             // reset sourceDiv colors
-            sourceDiv.resetColors();
+            container.resetColors('sourceDiv');
             // reset patternArray
-            patternArray.resetStrs();
-            patternArray.resetColors();
-            patternArray.removeClasses('lightblue');
+            container.resetPatternArray();
             // set patternArray
-            patternArray.setStrs(0, value.replace(/./g, '0'));
-            patternArray.addClasses(0, value, 'lightblue');
+            container.setPatternArray(0, value.replace(/./g, ' '));
         }
 
-        let sleep = (t) => new Promise(resolve => setTimeout(resolve, t))
+        let sleep = (t) => new Promise(resolve => setTimeout(resolve, t));
 
-        function strGo(ele, value, start, className) {
-            // reset patternDiv
-            ele.resetStrs();
-            ele.removeClasses(className);
-            // set patternDiv
-            ele.setStrs(start, value);
-            ele.addClasses(start, value, className);
-        } 
         function running() {
             isRunning = true;
             patternInput.disabled = true;
@@ -249,6 +284,8 @@
             let table = new Array(pattern.length).fill(0);
 
             let k = 0;
+            container.setPatternArrayChar(0, '0');
+
 
             for(let j = 1; j < pattern.length; j++) {
                 if(pattern[j] === pattern[k]) {
@@ -256,9 +293,9 @@
                 } else {
                     k = 0;
                 }
-                // yield;
+                yield;
                 // await sleep(300);
-                patternArray.setChar(j, (k).toString());
+                container.setPatternArrayChar(j, k + '');
                 // await sleep(300);
                 table[j] = k;
             }
@@ -273,41 +310,44 @@
                 // yield;
                 // await sleep(300);
                 // index go
-                sourceIndex.resetStrs();
-                sourceIndex.setChar(i, 'i');
-
-                patternIndex.resetStrs();
-                patternIndex.setChar(i, 'j');
+                container.setSourceIndex(i, 'i');
+                container.setPatternIndex(i, 'j');
                 yield;
                 // yield await sleep(300);
-                strGo(patternDiv, pattern, i - j, 'lightskyblue');
-                strGo(patternArray, table.join(''), i - j, 'lightblue');
+                container.movePatternDiv(i - j, pattern);
+                container.movePatternArray(i - j, table.join(''));
                 // yield;
                 // await sleep(300);
                 if(source[i] === pattern[j]) {
-                    sourceDiv.setColor(i, 'lightgreen');
-                    patternDiv.setColor(i, 'lightgreen');
+                    container.compareSourceAndPattern(i, 'lightgreen');
                     yield;
                     // await sleep(300);
                     j ++;
                 } else {
-                    sourceDiv.setColor(i, 'red');
-                    patternDiv.setColor(i, 'red');
+                    container.compareSourceAndPattern(i, 'red');
                     yield;
                     // await sleep(300);
                     while(j > 0) {
                         j = table[j - 1];
-                        strGo(patternDiv, pattern, i - j, 'lightskyblue');
-                        strGo(patternArray, table.join(''), i - j, 'lightblue');
+                        if(i - j + pattern.length > source.length) {
+                            resetRunning();
+                            console.log(false);
+                            return false;
+                        }
+                        container.movePatternDiv(i - j, pattern);
+                        container.movePatternArray(i - j, table.join(''));
+                        // yield;
+                        container.resetSourceAndPattern();
                         yield;
                         // await sleep(300);
                         if(source[i] === pattern[j]) {
+                            container.compareSourceAndPattern(i, 'lightgreen');
+                            yield;
                             j++;
                             break;
                         }
                     }
-                    sourceDiv.resetColors();
-                    patternDiv.resetColors();
+                    container.resetSourceAndPattern();
                     yield;
                     // await sleep(300);
                 }
@@ -321,8 +361,9 @@
             console.log(false)
             return false;
         }
-        genSource('abcabcabx');
-        genPattern('abcabx');
+        var it = find();
+        genSource('abababaaa');
+        genPattern('ababac');
     </script>
 </body>
 </html>
