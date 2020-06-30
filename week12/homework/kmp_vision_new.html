@@ -325,12 +325,9 @@
                     k = 0;
                 }
                 yield;
-                // await sleep(300);
                 container.setPatternArrayValue(j, k + '');
                 yield;
-
                 container.setPatternArrayChar(j, k + '');
-                // await sleep(300);
                 table[j] = k;
                 yield;
                 container.patternDiv.resetColors();
@@ -346,24 +343,19 @@
                     console.log(false);
                     return false;
                 }
-                // await sleep(300);
                 container.setSourceIndex(i, `source[${i}]`);
                 container.setPatternIndex(i, `pattern[${j}]`);
-                // yield;
-                // await sleep(300);
+
                 container.movePatternDiv(i - j, pattern);
                 container.movePatternArray(i - j, table.join(''));
                 yield;
-                // await sleep(300);
                 if(source[i] === pattern[j]) {
                     container.compareSourceAndPattern(i, 'lightgreen');
                     yield;
-                    // await sleep(300);
                     j ++;
                 } else {
                     container.compareSourceAndPattern(i, 'red');
                     yield;
-                    // await sleep(300);
                     while(j > 0) {
                         if(i == source.length - 1) {
                             resetRunning();
@@ -391,7 +383,6 @@
 
                         container.resetSourceAndPattern();
                         yield;
-                        // await sleep(300);
                         if(source[i] === pattern[j]) {
                             container.compareSourceAndPattern(i, 'lightgreen');
                             yield;
@@ -404,7 +395,6 @@
                     }
                     container.resetSourceAndPattern();
                     yield;
-                    // await sleep(300);
                 }
                 if(j === pattern.length) {
                     resetRunning();
@@ -425,8 +415,7 @@
             autoRunning();
 
             while(!res.done){
-                console.log(res.value);
-                await sleep(300);
+                await sleep(400);
                 res = g.next();
             }
         }
