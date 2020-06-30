@@ -202,6 +202,10 @@
                 this.sourceDiv.setColor(index, color);
                 this.patternDiv.setColor(index, color);
             }
+            comparePatterns(i, j, color) {
+                this.patternDiv.setColor(i, color);
+                this.patternDiv.setColor(j, color);
+            }
             resetSourceAndPattern() {
                 this.sourceDiv.resetColors();
                 this.patternDiv.resetColors();
@@ -270,6 +274,7 @@
             sourceInput.disabled = true;
             startButton.disabled = true;
             nextButton.disabled = '';
+            result.innerText = '';
         }
 
         function resetRunning() {
@@ -302,20 +307,17 @@
                 container.patternDiv.setColor(j, 'lightgrey')
                 yield;
                 if(pattern[j] === pattern[k]) {
-                    container.patternDiv.setColor(j, 'lightgreen');
-                    container.patternDiv.setColor(k, 'lightgreen');
+                    container.comparePatterns(j, k, 'lightgreen');
                     k++;
                     yield;
                     container.patternArrayValue.setChar(j-1, k-1 + '++');
                 } else {
-                    container.patternDiv.setColor(j, 'red');
-                    container.patternDiv.setColor(k, 'red');
+                    container.comparePatterns(j, k, 'red');
                     k = 0;
                 }
                 yield;
                 // await sleep(300);
-                container.patternArrayValue.resetStrs();
-                container.patternArrayValue.setChar(j, k + '');
+                container.setPatternArrayValue(j, k + '');
                 yield;
 
                 container.setPatternArrayChar(j, k + '');
@@ -331,7 +333,7 @@
             for(let i = 0; i < source.length; i++) {
                 if((i - j + pattern.length) > source.length) {
                     resetRunning();
-                    result.innerText = 'result: 由于移动后的pattern已经超过了剩下的source字符串，故匹配失败';
+                    result.innerText = 'result: 由于需要移动的pattern已经超出了剩下的source字符串，故匹配失败';
                     console.log(false);
                     return false;
                 }
@@ -354,6 +356,12 @@
                     yield;
                     // await sleep(300);
                     while(j > 0) {
+                        if(i == source.length - 1) {
+                            resetRunning();
+                            result.innerText = 'result: 匹配失败';
+                            console.log(false)
+                            return false;
+                        }
                         container.patternArray.setColor(i - 1, 'lightcoral');
                         yield;
                         j = table[j - 1];
@@ -363,7 +371,7 @@
                         container.setPatternIndex(i, `pattern[${j}]`);
                         if(i - j + pattern.length > source.length) {
                             resetRunning();
-                            result.innerText = 'result: 由于移动后的pattern已经超过了剩下的source字符串，故匹配失败';
+                            result.innerText = 'result: 由于需要移动的pattern已经超出了剩下的source字符串，故匹配失败';
                             console.log(false);
                             return false;
                         }
@@ -396,10 +404,6 @@
                     return true;
                 }
             }
-            resetRunning();
-            result.innerText = 'result: 匹配失败';
-            console.log(false)
-            return false;
         }
         var it;
         genSource('abcabcabx');
