@@ -103,11 +103,16 @@
                 })
             }
             setChar(index, char) {
-                this.spans[index].setChar(char);
+                this.spans[index].setChar(char + '');
             }
             setStrs(start, str) {
                 for(let i = start; i < str.length + start; i++) {
                     this.setChar(i, str[i - start]);
+                }
+            }
+            setArr(start, arr) {
+                for(let i = start; i < arr.length + start; i++) {
+                    this.setChar(i, arr[i - start]);
                 }
             }
             setColor(index, color) {
@@ -159,9 +164,9 @@
                 this.patternIndex.resetStrs();
                 this.patternIndex.setChar(index, value);
             }
-            setPatternArray(index, value) {
-                this.patternArray.setStrs(index, value);
-                this.patternArray.addClasses(index, value);
+            setPatternArray(index, arr) {
+                this.patternArray.setArr(index, arr);
+                this.patternArray.addClasses(index, arr);
             }
             setPatternArrayValue(index, value) {
                 this.patternArrayValue.resetStrs();
@@ -194,10 +199,10 @@
                 this.patternDiv.removeClasses();
                 this.setPatternDiv(start, value);
             }
-            movePatternArray(start, value) {
+            movePatternArray(start, arr) {
                 this.patternArray.resetStrs();
                 this.patternArray.removeClasses();
-                this.setPatternArray(start, value);
+                this.setPatternArray(start, arr);
             }
             compareSourceAndPattern(index, color) {
                 this.sourceDiv.setColor(index, color);
@@ -256,6 +261,11 @@
         }
 
         function genPattern(value) {
+            if(value.length > sourceInputValue.length) {
+                result.innerText = 'pattern字符串长度超过source长度';
+                patternInput.value = patternInputValue;
+                return;
+            }
             result.innerText = '';
             // reset sourceIndex
             container.resetSourceIndex('source[0]');
@@ -358,7 +368,7 @@
                 container.setPatternIndex(i, `pattern[${j}]`);
 
                 container.movePatternDiv(i - j, pattern);
-                container.movePatternArray(i - j, table.join(''));
+                container.movePatternArray(i - j, table);
                 yield;
                 if(source[i] === pattern[j]) {
                     container.compareSourceAndPattern(i, 'lightgreen');
@@ -390,7 +400,7 @@
                         container.setPatternIndex(i, `pattern[${j}]`);
                         yield;
                         container.movePatternDiv(i - j, pattern);
-                        container.movePatternArray(i - j, table.join(''));
+                        container.movePatternArray(i - j, table);
 
                         container.resetSourceAndPattern();
                         yield;
