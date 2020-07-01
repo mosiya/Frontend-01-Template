@@ -236,6 +236,7 @@
         var isRunning = false;
 
         function genSource(value) {
+            result.innerText = '';
             sourceInputValue = value;
             // all clear
             container.clear();
@@ -244,14 +245,18 @@
             container.setSourceDiv(0, value);
             container.setSourceIndex(0, 'source[0]');
             container.setPatternIndex(0, 'pattern[0]');
-            container.setPatternArrayValue(0, '0');
-            if(patternInputValue.length < value.length) {
+            if(patternInputValue.length <= value.length) {
                 container.setPatternDiv(0, patternInputValue);
                 container.setPatternArray(0, patternInputValue.replace(/./g, ' '));
+                container.setPatternArrayValue(0, '0');
+                long();
+            } else {
+                shorter()
             }
         }
 
         function genPattern(value) {
+            result.innerText = '';
             // reset sourceIndex
             container.resetSourceIndex('source[0]');
             container.resetPatternIndex('pattern[0]');
@@ -293,16 +298,22 @@
             autoButton.disabled = '';
         }
 
+        function shorter() {
+            startButton.disabled = true;
+            autoButton.disabled = true;
+        }
+
+        function long() {
+            startButton.disabled = '';
+            autoButton.disabled = '';
+        }
+
         function* find(source, pattern) {
             genPattern(patternInputValue);
             running();
             yield;
             source = sourceInputValue;
             pattern = patternInputValue;
-
-            if(source.length < pattern.length) {
-                
-            }
 
             let table = new Array(pattern.length).fill(0);
 
