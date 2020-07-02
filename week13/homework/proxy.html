@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        let handlers = new Map();
+
+        let uesdReactivities = [];
+
+        let object = {
+            a: 1,
+            b: 2
+        }
+
+        function reactive(obj) {
+            return new Proxy(obj, {
+                get(obj, prop) {
+                    // console.log(arguments);
+                    uesdReactivities.push([obj, prop]);
+                    return obj[prop]
+                },
+                set(obj, prop, val) {
+                    obj[prop] = val;
+                    console.log(handlers)
+                    if(handlers.has(obj)) {
+                        if(handlers.get(obj).get(prop)) {
+                            for(let handler of handlers.get(obj).get(prop)) {
+                                handler();
+                            }
+                        } 
+                    }
+                    return obj[prop];
+                }
+            })
+        }
+
+        function effet(handler) {
+            uesdReactivities = [];
+            handler();
+            console.log(uesdReactivities);
+            // handlers.push(handler);
+            for(let uesdReactivity of uesdReactivities) {
+                let [obj, prop] = uesdReactivity;
+                console.log(obj, prop);
+                if(!handlers.has(obj)) {
+                    handlers.set(obj, new Map()); 
+                }
+
+                if(!handlers.get(obj).has(prop)) {
+                    handlers.get(obj).set(prop, []); 
+                }
+
+                handlers.get(obj).get(prop).push(handler)
+            }
+        }
+
+        let dummy;
+
+        let proxy = reactive(object);
+        let proxy2 = reactive(object);
+        
+        effet(() => dummy = proxy.a + proxy2.a);
+
+        console.log(dummy);
+        proxy.a = 2;
+        proxy2.a = 2;
+        console.log(dummy);
+    </script>
+</body>
+</html>
