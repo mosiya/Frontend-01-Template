@@ -41,9 +41,9 @@
         </div>
         <div style="margin-top: 50px;">
             <label for="source">source: </label>
-            <input type="text" name="source" id="sourceInput" value="abcabcabxabcabxaa" oninput="genSource(this.value)">
+            <input type="text" name="source" id="sourceInput" value="abcxababcxababcn" oninput="genSource(this.value)">
             <label for="pattern">pattern: </label>
-            <input type="text" name="pattern" id="patternInput" value="abcabxaa" oninput="genPattern(this.value)">
+            <input type="text" name="pattern" id="patternInput" value="abcxababcn" oninput="genPattern(this.value)">
             <button onclick="autoFind()" id="autoButton">auto start</button>
             <button onclick="it = find(); it.next()" id="startButton">start</button>
             <button onclick="it.next()" id="nextButton">next</button>
@@ -103,6 +103,7 @@
                 })
             }
             setChar(index, char) {
+                if(this.spans.length === 0) return;
                 this.spans[index].setChar(char + '');
             }
             setStrs(start, str) {
@@ -116,6 +117,7 @@
                 }
             }
             setColor(index, color) {
+                if(this.spans.length === 0) return;
                 this.spans[index].setColor(color);
             }
             setColors(start, str, color) {
@@ -124,6 +126,7 @@
                 }
             }
             addClass(index) {
+                if(this.spans.length === 0) return;
                 this.spans[index].addClass(this.className);
             }
             addClasses(start, str) {
@@ -344,6 +347,21 @@
                 } else {
                     container.comparePatterns(j, k, 'red');
                     k = 0;
+                    yield;
+                    container.setPatternArrayValue(j, k + '');
+                    if(pattern[j] === pattern[k]) {
+                        yield;
+                        container.patternDiv.resetColors();
+                        yield;
+                        container.patternDiv.setColor(k, 'lightgrey');
+                        yield;
+                        container.patternDiv.setColor(j, 'lightgrey');
+                        yield;
+                        container.comparePatterns(j, k, 'lightgreen');
+                        k++;
+                        yield;
+                        container.patternArrayValue.setChar(j, k - 1 + '++');
+                    }
                 }
                 yield;
                 container.setPatternArrayValue(j, k + '');
@@ -426,8 +444,8 @@
             }
         }
         var it;
-        genSource('abcabcabxabcabxaa');
-        genPattern('abcabxaa');
+        genSource('abcxababcxababcn');
+        genPattern('abcxababcn');
         resetRunning();
 
         async function autoFind() {

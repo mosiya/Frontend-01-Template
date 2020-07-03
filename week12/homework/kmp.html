@@ -18,6 +18,9 @@
                     k++;
                 } else {
                     k = 0;
+                    if(pattern[j] === pattern[k]) {
+                        k++;
+                    }
                 }
                 table[j] = k;
             }
