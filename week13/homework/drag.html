@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="container">
+        文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字
+    </div>
+    <div id="dragable" style="width: 100px;height: 100px;background-color: pink; display: inline-block;"></div>
+    <script>
+        let dragable = document.getElementById('dragable');
+
+        let baseX = 0, baseY = 0;
+
+        dragable.addEventListener('mousedown', event => {
+            let startX = event.clientX;
+            let startY = event.clientY;
+            let move = event => {
+                let x = baseX + event.clientX - startX, y = baseY + event.clientY - startY;
+                // dragable.style.transform = `translate(${x}px, ${y}px)`
+                let range = nearset(event.clientX, event.clientY);
+                range.insertNode(dragable);
+            };
+            let up = event => {
+                baseX = baseX + event.clientX - startX, baseY = baseY + event.clientY - startY;
+                document.removeEventListener('mousemove', move);
+                document.removeEventListener('mouseup', up);
+            };
+            document.addEventListener('mousemove', move);
+            document.addEventListener('mouseup', up);
+        })
+
+        let ranges = [];
+
+        let container = document.getElementById('container');
+
+        for(let i = 0; i < container.childNodes[0].textContent.length; i ++) {
+            let range = document.createRange();
+            range.setStart(container.childNodes[0], i);
+            range.setEnd(container.childNodes[0], i);
+            ranges.push(range);
+        }
+
+        function nearset(x0, y0) {
+            let nearsetRange = null;
+            let distance = Infinity;
+            for(let range of ranges) {
+                let {x, y} = range.getBoundingClientRect();
+                let d = (x0 - x) ** 2 + (y0 - y) ** 2;
+
+                if(d < distance) {
+                    nearsetRange = range;
+                    distance = d;
+                }
+            }
+            return nearsetRange;
+        }
+
+        document.addEventListener('selectstart', event => event.preventDefault());
+        
+    </script>
+</body>
+</html>

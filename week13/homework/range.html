@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="text">Hello {{name}}</div>
+    <script>
+        let handlers = new Map();
+
+        let reactivities = new Map();
+
+        let uesdReactivities = [];
+
+        function reactive(obj) {
+            if(reactivities.has(obj)) {
+                return reactivities.get(obj);
+            }
+            let proxy = new Proxy(obj, {
+                get(obj, prop) {
+                    // console.log(arguments);
+                    uesdReactivities.push([obj, prop]);
+                    if(typeof obj[prop] === 'objct') {
+                        return reactive(obj[prop]);
+                    }
+                    return obj[prop]
+                },
+                set(obj, prop, val) {
+                    obj[prop] = val;
+                    // console.log(handlers)
+                    if(handlers.has(obj)) {
+                        if(handlers.get(obj).get(prop)) {
+                            for(let handler of handlers.get(obj).get(prop)) {
+                                handler();
+                            }
+                        } 
+                    }
+                    return obj[prop];
+                }
+            })
+
+            reactivities.set(obj, proxy);
+            reactivities.set(proxy, proxy);
+            return proxy;
+        }
+
+        function effet(handler) {
+            uesdReactivities = [];
+            handler();
+            for(let uesdReactivity of uesdReactivities) {
+                let [obj, prop] = uesdReactivity;
+                console.log(obj, prop);
+                if(!handlers.has(obj)) {
+                    handlers.set(obj, new Map()); 
+                }
+
+                if(!handlers.get(obj).has(prop)) {
+                    handlers.get(obj).set(prop, []); 
+                }
+
+                handlers.get(obj).get(prop).push(handler)
+            }
+        }
+
+        let range = document.createRange();
+        let text = document.getElementById('text');
+        range.setStart(text.childNodes[0], 6);
+        range.setEnd(text.childNodes[0], 14);
+        let data = reactive({text: 'world!'});
+        effet(() => {
+            range.extractContents();
+            range.insertNode(document.createTextNode(data.text));
+        })
+    </script>
+</body>
+</html>
