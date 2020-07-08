@@ -43,3 +43,31 @@
 | attribute | √ | √ | √ | ? |
 | state | × | × | × | √ |
 | config | × | √ | × | × |
+
+### Lifecycle
+
++ created -> mounted or js change/set or User Input
++ mouned -> unmounted -> destroyed or creatd
++ js change/set or User Input -> render/update -> destroyed or creatd
+
+### Children
+
++ Content型Children vs Template型Children
+
+### 实战设计：Carousel
+
++ state
+  + activeIndex
++ property
+  + loop、time、imgList、autoplay、color、forward
++ attribute
+  + startIndex、loop、time、imgList、autoplay、color、forward
++ children
+
++ event
+  + change、click、hover、swipe、dbclick
++ method
+  + next、prev、goto、play、stop
++ config
+  + setInterval、setTimeout、requestAnimationFrame
+  + mode: "useRAFter", "useTimeout"
