@@ -1,4 +1,5 @@
-import {createElement, Text, Wrapper, Div} from './createElement'
+import { createElement, Text, Wrapper, Div } from './createElement'
+import { carousel } from './carousel.view'
 
 class Carousel {
     constructor() {
