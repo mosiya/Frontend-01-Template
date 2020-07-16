@@ -67,3 +67,5 @@
 + Carousel的组件化
 
   代码参见该项目根目录下的component文件夹->main.js
+
+  相应的代码我也拷贝到homework目录下了(只有代码，没有对应的webpack配置。该代码需要webpack打包后才能运行)
