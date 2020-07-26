@@ -1,0 +1,29 @@
+<html>
+  <head></head>
+  <style>
+      #container{
+	     width: 100px;
+		 height:100px;
+		 background: skyblue;
+		 transition: linear 20s
+	  }
+  </style>
+  <body>
+    <div id="container">
+
+    </div>
+    <script>
+		function start(){
+			var c = document.getElementById('container');
+			c.style.transform = 'translate(500px, 500px)'
+			c.style.transition = 'linear 20s';
+		}
+		function stop(){
+			var c = document.getElementById('container');
+			var {x, y} = c.getBoundingClientRect();
+			c.style.transform = `translate(${x}px, ${y}px)`
+			c.style.transition = 'none';
+		}
+    </script>
+  </body>
+</html>

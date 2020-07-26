@@ -1,0 +1,11 @@
+<template>
+    <div>
+        <img src="" />
+        <div>哈哈</div>
+    </div>
+</template>
+<script>
+    export default {
+        name: ''
+    }
+</script>

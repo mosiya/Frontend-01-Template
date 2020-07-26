@@ -1,0 +1,41 @@
+<html>
+  <head></head>
+  <style>
+      #el, #el2{
+	     width: 100px;
+		 height:100px;
+		 background: skyblue;
+	  }
+	  #el2{
+		  /* transition: ease 20s; */
+	  }
+  </style>
+  <body>
+      <div id="el"></div>
+	  <div id="el2"></div>
+	  <button id="pause-btn">pause</button>
+	  <button id="resume-btn">resume</button>
+	  <button id="el2-start-btn">el2-start</button>
+  </body>
+    <script type="module">
+	 import {Timeline, Animation, ColorAnimation} from './animation.js'
+	 import {cubicBezier} from './cubicBezier.js'
+	 let linear = t => t;
+	 let ease = cubicBezier(.25,.1, .25, 1);
+	 let el = document.getElementById('el');
+	 let el2 = document.getElementById('el2');
+	//  el2.style.transform =  `translateX(300px)`
+	 let tl = new Timeline;
+	 tl.add(new Animation(el.style, 'transform', 0, 300, 20000,0, linear, v => `translateX(${v}px)`));
+	 tl.start();
+	 document.getElementById('pause-btn').addEventListener('click', function(){
+		tl.pause();
+	 })
+	 document.getElementById('resume-btn').addEventListener('click', function(){
+		tl.resume();
+	 })
+	 document.getElementById('el2-start-btn').addEventListener('click', function(){
+		tl.add(new ColorAnimation(el2.style, 'backgroundColor', {r:0,g:0,b:0,a:1},  {r:255,g:0,b:0,a:1}, 20000,0, linear));
+	 })
+  </script>
+</html>
